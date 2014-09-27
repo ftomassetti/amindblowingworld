@@ -63,6 +63,24 @@
   (let [id (.id tribe)]
     (swap! game assoc-in [:tribes id] tribe)))
 
+(defn population-supported [pos]
+  (let [x (:x pos)
+        y (:y pos)
+        b (-> (get-world) .getBiome)
+        biome (.get b x y)]
+    (case (.name biome)
+      "OCEAN"        0
+      "ICELAND"      100
+      "TUNDRA"       200
+      "ALPINE"       200
+      "GLACIER"      0
+      "GRASSLAND"    5000
+      "ROCK_DESERT"  500
+      "SAND_DESERT"  300
+      "FOREST"       3000
+      "SAVANNA"      1500
+      "JUNGLE"       2500)))
+
 (defn calc-biome-map [world]
   (let [ w (-> world .getDimension .getWidth)
          h (-> world .getDimension .getHeight)
@@ -215,10 +233,19 @@
       (run-randomly (update-settlement-fun id-new-settlement) (* fastness 3) (* fastness 10)))
     (catch AssertionError e (println "assertion failed: " (.getMessage e)))))
 
+(defn events-for [id-settlement]
+  (let [s (get-settlement id-settlement)
+        events [:growing :shrinking :stable]
+        pop (.pop s)
+        too-much-pop (> pop (population-supported (.pos s)))]
+    (if too-much-pop [:shrinking :stable :shrinking :stable :growing]
+      [:growing :shrinking :stable])))
+
 (defn update-settlement-fun [id-settlement]
   (fn []
-    (let [s     (get-settlement id-settlement)
-          event (rand-nth [:growing :shrinking :stable])]
+    (let [s (get-settlement id-settlement)
+          events (events-for id-settlement)
+          event (rand-nth events)]
       (when (and s (not (ghost-town? s)))
         (when (= event :growing)
           (let [perc (+ 1.0 (/ (rand) 5.0))
