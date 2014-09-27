@@ -151,12 +151,17 @@
     (f)
     (run-every-second f)))
 
+(defn run-every-n-seconds [f n]
+  (future (Thread/sleep (* n 1000))
+    (f)
+    (run-every-n-seconds f n)))
+
 (defn run-randomly [f min max]
   (future (Thread/sleep (+ min (rand-int (- max min))))
     (f)
-    (run-every-second f)))
+    (run-randomly f min max)))
 
 (defn init []
-  (run-every-second pop-balancer))
+  (run-every-n-seconds pop-balancer 10))
 
 
