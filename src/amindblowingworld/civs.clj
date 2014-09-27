@@ -162,7 +162,8 @@
              dead (int (* strength (.pop s)))
              new-pop (- (.pop s) dead)]
         (update-settlement-pop s-id new-pop)
-        (record-event (str dead " died in " (.name s) " because of " name) (.pos s))))))
+        (record-event (str dead " died in " (.name s) " because of " name) (.pos s))))
+    (not (empty? settlements))))
 
 (defn random-pos []
   (let [w (-> (get-world) .getDimension .getWidth)
