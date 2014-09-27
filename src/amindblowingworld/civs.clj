@@ -202,7 +202,10 @@
     (if pos
       (record-event (str "Population of " (.name s) " growing to " (.pop s)) (.pos s))
       (record-event (str "Population of " (.name s) " shrinking to " (.pop s)) (.pos s)))
-    (update-settlement s)))
+    (update-settlement s)
+    (when (= (.pop s) 0)
+      (update-biome-map)
+      (record-event (str "Village " (.name s) " is now a ghost town") (.pos s)))))
 
 (defn ghost-town? [settlement]
   (= 0 (.pop settlement)))
@@ -257,9 +260,7 @@
             (update-settlement-pop id-settlement new-pop)))
         (let [s (get-settlement id-settlement)]
           (when (and (< (.pop s) 70) (chance 0.35))
-            (update-settlement-pop id-settlement 0)
-            (update-biome-map)
-            (record-event (str "Village " (.name s) " is now a ghost town") (.pos s)))
+            (update-settlement-pop id-settlement 0))
           (when (and (> (.pop s) 500) (chance 0.15))
             (spawn-new-village-from id-settlement)
             (update-biome-map)
