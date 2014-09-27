@@ -33,6 +33,23 @@
 ; Tribe functions
 ; --------------------------------------
 
+(defn land? [pos]
+  (let [ b (-> @world .getBiome)
+         biome (.get b (:x pos) (:y pos))]
+    (not (= (.name biome) "OCEAN"))))
+
+(defn random-pos []
+  (let [w (-> @world .getDimension .getWidth)
+        h (-> @world .getDimension .getHeight)]
+    {:x (rand-int w) :y (rand-int h)}))
+
+; TODO check if there is a village there
+(defn free-random-land []
+  (let [rp (random-pos)]
+    (if (land? rp)
+      rp
+      (free-random-land))))
+
 (defn- create-tribe-in-game [game]
   (let [id-tribe (.next-id game)
         game (assoc game :next-id (inc id-tribe))
@@ -41,7 +58,7 @@
         language nil
         name-tribe nil
         name-settlement nil
-        pos {:x 0 :y 0}
+        pos (free-random-land)
         settlement (Settlement. id-settlement name-settlement 100 id-tribe pos)
         tribe (Tribe. id-tribe nil nil [id-settlement])
         game (assoc-in game [:tribes id-tribe] tribe)
