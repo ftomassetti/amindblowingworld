@@ -88,15 +88,64 @@
 (defn mix-values [a b f]
   (+ (* f (float a)) (* (- 1.0 f) (float b))))
 
+(defn top-left-of [p]
+  (let [x (:x p)
+        y (:y p)]
+    (if (or (= x 0) (= y 0))
+      nil
+      {:x (dec x) :y (dec y)})))
+
+(defn is-in-shadow? [elevationMatrix p]
+  (let [top-left (top-left-of p)]
+    (if (nil? top-left)
+      false
+      (let [elev-p        (.get elevationMatrix (:x p) (:y p))
+            elev-top-left (.get elevationMatrix (:x top-left) (:y top-left))]
+        (> elev-top-left elev-p)))))
+
+(defn- shadow-color-factor-helper [elevationMatrix p n]
+  (if (and (> n 0) (not (nil? p)))
+    (+ (if (is-in-shadow? elevationMatrix p)
+         (* n 0.1)
+      0.0) (shadow-color-factor-helper elevationMatrix (top-left-of p) (dec n)))
+    0.0))
+
+(defn shadow-color-factor-real [elevationMatrix p]
+  (/ (shadow-color-factor-helper elevationMatrix p 5) 4.0))
+
+(def shadow-color-factor (memoize shadow-color-factor-real))
+
 (defn mix-colors [a b f]
   (let [red (int (mix-values (.getRed a) (.getRed b) f))
         green (int (mix-values (.getGreen a) (.getGreen b) f))
         blue (int (mix-values (.getBlue a) (.getBlue b) f))]
     (Color. red green blue)))
 
-(defn adapt-color-to-elevation [color x y]
-  (let [elevation (.get (.getElevation (get-world)) x y)]
-    (mix-colors (Color. 255 255 255) color (altitude-color-factor elevation))))
+(defn adapt-color-to-elevation-real [em color x y]
+  (let [ elevation (.get em x y)]
+    (mix-colors
+      (Color. 0 0 0)
+      (mix-colors (Color. 255 255 255) color (altitude-color-factor elevation))
+      (shadow-color-factor em {:x x :y y}))))
+
+(def adapt-color-to-elevation (memoize adapt-color-to-elevation-real))
+
+(defn get-biome-color-real [biome]
+  (case (.name biome)
+    "OCEAN"        (Color. 0 0 255)
+    "ICELAND"      (Color. 255 225 225)
+    "TUNDRA"       (Color. 141 227 218)
+    "ALPINE"       (Color. 141 227 218)
+    "GLACIER"      (Color. 255 225 225)
+    "GRASSLAND"    (Color. 80 173 88)
+    "ROCK_DESERT"  (Color. 105 120 59)
+    "SAND_DESERT"  (Color. 205 227 141)
+    "FOREST"       (Color. 59 120 64)
+    "SAVANNA"      (Color. 171 161 27)
+    "JUNGLE"       (Color. 5 227 34)
+    (Color. 255 0 0)))
+
+(def get-biome-color (memoize get-biome-color-real))
 
 (defn calc-biome-map [world]
   (let [ w (-> world .getDimension .getWidth)
@@ -104,27 +153,17 @@
          scale-factor 1
          img (BufferedImage. (* scale-factor w) (* scale-factor h) (BufferedImage/TYPE_INT_ARGB))
          g (.createGraphics img)
-         b (-> world .getBiome)]
+         b (-> world .getBiome)
+         em (.getElevation (get-world))]
     (doseq [y (range h)]
       (doseq [x (range w)]
         (if (settlement-at {:x x :y y})
           (.setColor g (Color. 255 0 0))
           (let [pos {:x x :y y}
                 biome (.get b x y)
-            biome-color (case (.name biome)
-              "OCEAN"        (Color. 0 0 255)
-              "ICELAND"      (Color. 255 225 225)
-              "TUNDRA"       (Color. 141 227 218)
-              "ALPINE"       (Color. 141 227 218)
-              "GLACIER"      (Color. 255 225 225)
-              "GRASSLAND"    (Color. 80 173 88)
-              "ROCK_DESERT"  (Color. 105 120 59)
-              "SAND_DESERT"  (Color. 205 227 141)
-              "FOREST"       (Color. 59 120 64)
-              "SAVANNA"      (Color. 171 161 27)
-              "JUNGLE"       (Color. 5 227 34)
-              (Color. 255 0 0))]
-            (.setColor g (adapt-color-to-elevation biome-color x y))))
+                biome-color (get-biome-color biome)]
+            ;(.setColor g (adapt-color-to-elevation em biome-color x y))))
+            biome-color))
         (let [pixel-x (* x scale-factor)
               pixel-y (* y scale-factor)]
           (.fillRect g pixel-x pixel-y scale-factor scale-factor))))
