@@ -1,6 +1,8 @@
 # amindblowingworld
 
-## Usage
+## Usage: build and start
+lein cljsbuild once
+lein ring server-headless 8000
 
 ## License
 

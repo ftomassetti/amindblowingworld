@@ -1,4 +1,4 @@
-(ns amindblowingworld.core-test
+(ns amindblowingworld.routes-test
   (:require [clojure.test :refer :all]
             [amindblowingworld.core :refer :all]))
 
