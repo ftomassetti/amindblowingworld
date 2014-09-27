@@ -20,7 +20,7 @@
       [:div#appDiv
         [:div#world.column
           [:h3 "World Map"]
-          [:img#worldMap {:src "/img/world.png"}]]
+          [:img#worldMap {:src "/map.png"}]]
         [:div#menu.column
           [:h3 "Menu"]]
         [:div#news.column

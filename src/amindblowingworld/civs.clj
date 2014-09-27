@@ -77,8 +77,8 @@
     img))
 
 (defn update-biome-map []
-  (let [img (calc-biome-map (get-world))]
-    (def saved-biome-map img)))
+  (time (let [img (calc-biome-map (get-world))]
+    (def saved-biome-map img))))
 
 ; --------------------------------------
 ; Tribe functions

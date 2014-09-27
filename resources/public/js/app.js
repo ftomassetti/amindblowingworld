@@ -7,7 +7,7 @@ function log(msg) {
 function startPeriodicMapUpdate() {
     setInterval(function() {
         document.getElementById('worldMap').src = '/map.png?rand=' + Math.random();
-    }, 1000);
+    }, 18000);
 }
 
 function initApp() {
