@@ -34,7 +34,8 @@
 (defn biome-map [world]
   (let [ w (-> world .getDimension .getWidth)
          h (-> world .getDimension .getHeight)
-         img (BufferedImage. w h (BufferedImage/TYPE_INT_ARGB))
+         scale-factor 5
+         img (BufferedImage. (* scale-factor w) (* scale-factor h) (BufferedImage/TYPE_INT_ARGB))
          g (.createGraphics img)
          b (-> world .getBiome)]
     (doseq [y (range h)]
@@ -44,7 +45,9 @@
           (case (.name biome)
             "OCEAN" (.setColor g (Color. 0 0 255))
             (.setColor g (Color. 255 0 0)))
-            (.fillRect g x y 1 1))))
+          (let [pixel-x (* x scale-factor)
+                pixel-y (* y scale-factor)]
+            (.fillRect g pixel-x pixel-y scale-factor scale-factor)))))
     (.dispose g)
     img))
 
