@@ -10,6 +10,48 @@
 
 (def world (load-world "worlds/seed_13038.world"))
 
+; --------------------------------------
+; Records
+; --------------------------------------
+
+(defrecord Tribe [id name language settlements])
+(defrecord Game [next-id tribes settlements])
+
+; --------------------------------------
+; Global state
+; --------------------------------------
+
+(def world (atom (load-world "worlds/seed_13038.world")))
+
+(defn create-game []
+  (Game. 1 {} {}))
+
+(def game  (atom (create-game)))
+
+; --------------------------------------
+; Tribe functions
+; --------------------------------------
+
+(defn- create-tribe-in-game [game]
+  (let [next-id (.next-id game)
+        game (assoc game :next-id (inc next-id))
+        language nil
+        name nil
+        tribe (Tribe. next-id nil nil [])
+        game (assoc-in game [:tribes next-id] tribe)]
+      (println "Creating tribe [id " next-id "] name: " name)
+    game))
+
+(defn create-tribe []
+  (swap! game create-tribe-in-game))
+
+; --------------------------------------
+; Game functions
+; --------------------------------------
+
+(defn total-pop []
+  0)
+
 (defn pop-balancer []
   (println "Balancing population"))
 
