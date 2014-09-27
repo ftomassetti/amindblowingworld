@@ -6,7 +6,6 @@
   :dependencies [
     [org.clojure/clojure "1.5.1"]
     [org.clojure/clojurescript "0.0-2173" :exclusions [org.apache.ant/ant]]
-    [rm-hull/monet "0.2.1"]
     [compojure "1.1.6"]
     [hiccup "1.0.4"]
     [com.github.lands/lands-java-lib "0.3-SNAPSHOT"]
