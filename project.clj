@@ -6,9 +6,9 @@
   :dependencies [
     [com.cemerick/friend "0.2.0"]
     [friend-oauth2 "0.1.1"]
-    [ring "1.3.1"]
+    [ring "1.3.1" :exclusions [org.clojure/tools.reader]]
     [cheshire "5.3.1"]
-    [clj-http "0.7.7"]
+    [clj-http "0.7.7" :exclusions [org.clojure/tools.reader]]
     [org.clojure/clojure "1.5.1"]
     [org.clojure/clojurescript "0.0-2173" :exclusions [org.apache.ant/ant]]
     [compojure "1.1.6"]
