@@ -10,6 +10,9 @@
 
 (def world (load-world "worlds/seed_13038.world"))
 
+(defn generate-language []
+  (com.github.langgen.SamplesBasedLanguageFactory/getRandomLanguage))
+
 ; --------------------------------------
 ; Records
 ; --------------------------------------
@@ -55,9 +58,9 @@
         game (assoc game :next-id (inc id-tribe))
         id-settlement (.next-id game)
         game (assoc game :next-id (inc id-settlement))
-        language nil
-        name-tribe nil
-        name-settlement nil
+        language (generate-language)
+        name-tribe (.name language)
+        name-settlement (.name language)
         pos (free-random-land)
         settlement (Settlement. id-settlement name-settlement 100 id-tribe pos)
         tribe (Tribe. id-tribe nil nil [id-settlement])
