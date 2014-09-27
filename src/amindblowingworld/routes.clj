@@ -47,76 +47,70 @@
                         :query {:client_id (:client-id client-config)
                                 :response_type "code"
                                 :redirect_uri (oauth2u/format-config-uri client-config)
-                                :scope ""}}
+                                :scope ""
+                                }}
    :access-token-uri {:url "https://github.com/login/oauth/access_token"
                       :query {:client_id (:client-id client-config)
                               :client_secret (:client-secret client-config)
                               :grant_type "authorization_code"
-                              :redirect_uri (oauth2u/format-config-uri client-config)}}})
+                              :redirect_uri (oauth2u/format-config-uri client-config)
+                              }}
+   })
 
 (def config-auth {:roles #{::user}})
 
-(defroutes main-routes
-  (GET "/" [req] (h/html5
-                  [:head
-                   [:title "AMindBlowingWorld"]
-                   (h/include-js "/js/main.js")
-                   (h/include-js "/js/app.js")]
-                  (if auth
-                    [:body (if (friend/identity req)
-                             {:onload "initApp();"}
-                             {})
-                     [:h1 "AMindBlowingWorld App"]
-                     [:h2 "Clojurecup 2014"]
-                     [:h3 "Authentication via GitHub using OAuth2"]
-                     [:p "Current Status (this will change when you log in/out):"]
-                     (if-let [identity (friend/identity req)]
-                       [:p "Logged in as GitHub user "
-                        [:strong (get-github-handle (:current identity))]
-                        " with GitHub OAuth2 access token " (:current identity)]
-                       [:p [:a {:href "github.callback"} "Login with GitHub"]])
-                     [:h3 "App"]
-                     (if (friend/identity req)
-                       [:div#appDiv
-                        [:div#world [:img#worldView {:src "/img/world.png"}]]
-                        [:div#menu "Menu"]
-                        [:div#news "News"]]
-                       [:div#appDiv
-                        [:div#world [:img#worldView {:src "/img/world.png"}]]
-                        [:div#menu "Menu"]
-                        [:div#news "News"]])
-                     [:h3 "Logging out"]
-                     [:p (e/link-to "/logout" "Click here to log out") "."]
-                     ]
-                    [:body {:onload "initApp();"}
-                     [:h1 "AMindBlowingWorld App"]
-                     [:h2 "Clojurecup 2014"]
-                     [:h3 "Authentication via GitHub using OAuth2"]
-                     [:p "Current Status (this will change when you log in/out):"]
-                     [:p "development code "]
-                     [:h3 "App"]
-                     [:div#appDiv
-                      [:div#world [:img#worldView {:src "/img/world.png"}]]
-                      [:div#menu "Menu"]
-                      [:div#news "News"]]
-                     [:h3 "Logging out"]
-                     [:p "Click here to log out" "."]
-                     ]
-                    )))
+(defn render-main-page [request]
+  (let [{access-token :access_token} (friend/current-authentication request)
+        identity (friend/identity request)]
+    (h/html5
+     [:head
+      [:title "AMindBlowingWorld"]
+      (h/include-js "/js/main.js")
+      (h/include-js "/js/app.js")]
+     [:body (if access-token {:onload "initApp();"} {})
+      [:h1 "AMindBlowingWorld App"]
+      [:h2 "Clojurecup 2014"]
+      [:h3 "Authentication via GitHub using OAuth2"]
+      [:p "Current Status (this will change when you log in/out):"]
+      (if (and access-token identity)
+        [:p "Logged in as GitHub user "
+         [:strong (get-github-handle (:current identity))]
+         " with GitHub OAuth2 access token " (:current identity)]
+        [:p [:a {:href "github.callback"} "Login with GitHub"]])
+      [:h3 "App"]
+      (if access-token
+        [:div#appDiv
+         [:div#world [:img#worldView {:src "/img/world.png"}]]
+         [:div#menu "Menu"]
+         [:div#news "News"]]
+        [:div#appDiv
+         [:div#world [:img#worldView {:src "/img/world.png"}]]
+         [:div#menu "Menu"]
+         [:div#news "News"]])
+      [:h3 "Logging out"]
+      [:p (e/link-to "/logout" "Click here to log out") "."]
+      ]
+    )))
 
-         ;; [:ul [:li (e/link-to (misc/context-uri req "role-user") "Requires the `user` role")]
-        ;;  ;[:li (e/link-to (misc/context-uri req "role-admin") "Requires the `admin` role")]
-        ;;  [:li (e/link-to (misc/context-uri req "requires-authentication")
+(defroutes main-routes
+  (GET "/" [request]
+       (if auth
+         (friend/authorize #{::user} (render-main-page request))
+         (render-main-page request)))
+
+         ;; [:ul [:li (e/link-to (misc/context-uri request "role-user") "Requires the `user` role")]
+        ;;  ;[:li (e/link-to (misc/context-uri request "role-admin") "Requires the `admin` role")]
+        ;;  [:li (e/link-to (misc/context-uri request "requires-authentication")
         ;;         "Requires any authentication, no specific role requirement")]]
         ;; [:h3 "Logging out"]
-        ;; [:p (e/link-to (misc/context-uri req "logout") "Click here to log out") "."])))
-  (GET "/logout" req
-    (friend/logout* (resp/redirect (str (:context req) "/"))))
-  ;; (GET "/requires-authentication" req
+        ;; [:p (e/link-to (misc/context-uri request "logout") "Click here to log out") "."])))
+  (GET "/logout" request
+    (friend/logout* (resp/redirect (str (:context request) "/"))))
+  ;; (GET "/requires-authentication" request
   ;;   (friend/authenticated "Thanks for authenticating!"))
-  ;; (GET "/role-user" req
+  ;; (GET "/role-user" request
   ;;   (friend/authorize #{::users/user} "You're a user!"))
-  ;; #_(GET "/role-admin" req
+  ;; #_(GET "/role-admin" request
   ;;   (friend/authorize #{::users/admin} "You're an admin!"))
   (GET "/world" [] (index-page))
   (GET "/map.png" [] (response-biome-map))
@@ -136,8 +130,8 @@
     (-> main-routes
         (friend/authenticate
          {:allow-anon? true
-          :default-landing-uri "/"
-          :login-uri "/github.callback"
+          ;;:default-landing-uri "/"
+          ;;:login-uri "/"
           :unauthorized-handler #(-> (h/html5 [:h2 "You do not have sufficient privileges to access " (:uri %)])
                                      resp/response
                                      (resp/status 401))
@@ -145,8 +139,8 @@
                        {:client-config client-config
                         :uri-config uri-config
                         :config-auth config-auth
-                        ;;:access-token-parsefn oauth2u/get-access-token-from-params
-                        :access-token-parsefn #(-> % :body codec/form-decode (get "access_token"))
+                        :access-token-parsefn oauth2u/get-access-token-from-params
+                        ;;:access-token-parsefn #(-> % :body codec/form-decode (get "access_token"))
                         })]})
         handler/site
         wrap-base-url)
