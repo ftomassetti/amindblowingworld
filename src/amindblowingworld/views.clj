@@ -62,7 +62,7 @@
     img))
 
 (defn response-biome-map []
-  (let [bm (biome-map world)
+  (let [bm (biome-map @world)
         bytes (image-bytes bm "png")]
     (response-png-image-from-bytes bytes)))
 
