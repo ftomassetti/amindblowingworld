@@ -43,6 +43,23 @@
 (def ^:dynamic saved-biome-map nil)
 
 (declare settlement-at)
+(declare run-randomly)
+(declare get-settlement)
+(declare get-tribe)
+
+(defn get-settlement [id]
+  (get-in @game [:settlements id]))
+
+(defn get-tribe [id]
+  (get-in @game [:tribe id]))
+
+(defn update-settlement [settlement]
+  (let [id (.id settlement)]
+    (swap! game assoc-in [:settlements id] settlement)))
+
+(defn update-tribe [tribe]
+  (let [id (.id tribe)]
+    (swap! game assoc-in [:tribes id] tribe)))
 
 (defn calc-biome-map [world]
   (let [ w (-> world .getDimension .getWidth)
@@ -108,8 +125,35 @@
       rp
       (free-random-land))))
 
+(defn chance [p]
+  (< (rand) p))
+
 (defn update-tribe-fun [id-tribe]
-  (fn [] (println "Updating " id-tribe)))
+  (fn []
+    ;(println "Updating " id-tribe)
+    ))
+
+(defn update-settlement-pop [id-settlement new-pop]
+  (let [s (get-settlement id-settlement)
+        pos (> new-pop (:pop s))
+        s (assoc s :pop new-pop)]
+    (if pos
+      (record-event (str "Population of " (.name s) " growing to " (.pop s)) nil)
+      (record-event (str "Population of " (.name s) " shrinking to " (.pop s)) nil))
+    (update-settlement s)))
+
+(defn update-settlement-fun [id-settlement]
+  (fn []
+    (let [s     (get-settlement id-settlement)
+          event (rand-nth [:growing :shrinking :stable])]
+      (when (= event :growing)
+        (let [perc (+ 1.0 (/ (rand) 4.0))
+              new-pop (int (* (.pop s) perc))]
+          (update-settlement-pop id-settlement new-pop)))
+      (when (= event :shrinking)
+        (let [perc (- 1.00 (/ (rand) 4.0))
+              new-pop (int (* (.pop s) perc))]
+          (update-settlement-pop id-settlement new-pop))))))
 
 (defn- create-tribe-in-game [game]
   (let [id-tribe (.next-id game)
@@ -124,6 +168,8 @@
         tribe (Tribe. id-tribe name-tribe language [id-settlement])
         game (assoc-in game [:tribes id-tribe] tribe)
         game (assoc-in game [:settlements id-settlement] settlement)]
+      (run-randomly (update-tribe-fun id-tribe) 3000 10000)
+      (run-randomly (update-settlement-fun id-settlement) 3000 10000)
       (record-event (str "Creating tribe " name-tribe) pos)
       (record-event (str "Creating village " name-settlement) pos)
       (update-biome-map)
