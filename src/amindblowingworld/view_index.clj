@@ -22,9 +22,11 @@
           [:h3 "World Map"]
           [:img#worldMap {:src "/map.png"}]]
         [:div#menu.column
-          [:h3 "Menu"]]
+          [:h3 "Menu"]
+          [:textarea {:cols "30" :rows "30"}]]
         [:div#news.column
           [:h3 "News"]
-          [:textarea {:cols "60" :rows "30"}]]
+          [:select#newsList {:size 30}
+            [:option {:value "v0" :selected "true"} "World created"]]]
         [:br {:style "clear: right;"}]]
     ]))
