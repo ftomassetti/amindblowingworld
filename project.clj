@@ -18,5 +18,6 @@
     :builds [{:source-paths ["src-cljs"]
     :compiler {:output-to "resources/public/js/main.js" :optimizations :whitespace :pretty-print true}}]}
   :ring {
+    :init amindblowingworld.civs/init
     :handler amindblowingworld.routes/app
     :auto-reload? true})
