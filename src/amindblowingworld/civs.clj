@@ -15,6 +15,7 @@
 ; --------------------------------------
 
 (defrecord Tribe [id name language settlements])
+(defrecord Settlement [id name pop owner pos])
 (defrecord Game [next-id tribes settlements])
 
 ; --------------------------------------
@@ -33,13 +34,20 @@
 ; --------------------------------------
 
 (defn- create-tribe-in-game [game]
-  (let [next-id (.next-id game)
-        game (assoc game :next-id (inc next-id))
+  (let [id-tribe (.next-id game)
+        game (assoc game :next-id (inc id-tribe))
+        id-settlement (.next-id game)
+        game (assoc game :next-id (inc id-settlement))
         language nil
-        name nil
-        tribe (Tribe. next-id nil nil [])
-        game (assoc-in game [:tribes next-id] tribe)]
-      (println "Creating tribe [id " next-id "] name: " name)
+        name-tribe nil
+        name-settlement nil
+        pos {:x 0 :y 0}
+        settlement (Settlement. id-settlement name-settlement 100 id-tribe pos)
+        tribe (Tribe. id-tribe nil nil [id-settlement])
+        game (assoc-in game [:tribes id-tribe] tribe)
+        game (assoc-in game [:settlements id-settlement] settlement)]
+      (println "Creating tribe " tribe)
+      (println "Creating settlement " settlement)
     game))
 
 (defn create-tribe []
@@ -50,10 +58,14 @@
 ; --------------------------------------
 
 (defn total-pop []
-  0)
+  (reduce + (map :pop (vals (.settlements @game)))))
 
 (defn pop-balancer []
-  (println "Balancing population"))
+  (let [pop (total-pop)]
+    (println "Balancing population, total pop: " pop)
+    (if (< pop 1000)
+      (create-tribe)
+      (println "...nothing to do"))))
 
 (defn run-every-second [f]
   (future (Thread/sleep 1000)
