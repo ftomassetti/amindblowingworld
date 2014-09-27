@@ -316,7 +316,7 @@
           _               (update-settlement settlement)]
           _               (assert (= settlement (get-settlement id-settlement)))
           _               (assert (= tribe (get-tribe id-tribe)))
-        (run-randomly (update-tribe-fun id-tribe) 3000 10000)
+        (run-randomly (update-tribe-fun id-tribe) (* 3 fastness) (* 10 fastness))
         (run-randomly (update-settlement-fun id-settlement) (* fastness 3) (* fastness 10))
         (record-event (str "Creating tribe " name-tribe) pos)
         (record-event (str "Creating village " name-settlement) pos)
@@ -343,7 +343,7 @@
     (run-every-second f)))
 
 (defn run-every-n-seconds [f n]
-  (future (Thread/sleep (* n 1000))
+  (future (Thread/sleep (* n 1 fastness))
     (f)
     (run-every-n-seconds f n)))
 
