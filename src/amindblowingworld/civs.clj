@@ -223,7 +223,7 @@
         _ (swap! game assoc :next-id (inc next-id))]
     next-id))
 
-(defn- create-tribe []
+(defn create-tribe []
   (try
     (let [id-tribe        (get-next-id)
           id-settlement   (get-next-id)
