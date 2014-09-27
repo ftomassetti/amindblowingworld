@@ -10,10 +10,11 @@
       [:title "AMindBlowingWorld"]
       (include-js "/js/main.js")
       (include-js "/js/app.js")]
-    [:body
+    [:body {:onload "initApp();"}
       [:h1 "AMindBlowingWorld"]
       [:div#authDiv "auth here"]
       [:div#appDiv
-        [:div#world
-          [:img#worldView {:src "/img/world.png"}]]]
+        [:div#world [:img#worldView {:src "/img/world.png"}]]
+        [:div#menu "Menu"]
+        [:div#news "News"]]
     ]))
