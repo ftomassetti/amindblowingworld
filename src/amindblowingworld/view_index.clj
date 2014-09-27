@@ -43,7 +43,7 @@
           [:h3 "World Map"]
           [:img#worldMap {:src "/map.png"}]]
         [:div#menu.column
-          [:h3 "Landscape Colours"]
+          [:h3 "Landscapes"]
           [:table (landscape-colors-legend)]
           [:h3 "Make damage!"]
           [:form#damageReasons (damage-reasons ["Vulcano"] true) (damage-reasons ["Vulcano" "Earthquake" "Hunger" "Tsunami" "Tornado" "Meteor" "Russian invasion" "Crazy Putin"] false)]]

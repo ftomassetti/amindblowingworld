@@ -16,7 +16,8 @@ function startPeriodicNewsUpdate() {
 }
 
 function createDisaster(x, y) {
-  $.get("/useractions/disaster/" + x + "/" + y + "/Vulcano", function( data ) {
+  var damageName = $('input[name=damage]:checked', '#damageReasons').val()
+  $.get("/useractions/disaster/" + x + "/" + y + "/" + damageName, function( data ) {
     if (data == "true") {
       alert("Disaster close to vilage - damage caused");
     } else {
