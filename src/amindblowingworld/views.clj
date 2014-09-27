@@ -42,7 +42,9 @@
     (response-png-image-from-bytes bytes)))
 
 (defn- get-history-since [event-id]
-  [(.length @events) (subvec @events event-id)])
+  (if (nil? @events)
+    [0 []]
+    [(.length @events) (if (>= event-id (.length @events)) [] (subvec @events event-id))]))
 
 (defn history-since [event-id]
   (json/write-str (get-history-since event-id)))
