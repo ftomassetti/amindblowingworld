@@ -10,4 +10,7 @@
       [:title "AMindBlowingWorld"]
       (include-js "/js/main.js")]
     [:body
-      [:h1 "Hello AMindBlowingWorld"]]))
+      [:h1 "AMindBlowingWorld"]
+      [:div#authDiv "auth here"]
+      [:div#appDiv "app here" [:div#world]]
+    ]))
