@@ -8,6 +8,7 @@
 
 (defroutes main-routes
   (GET "/" [] (index-page))
+  (GET "/map.png" [] (response-biome-map))
   (route/resources "/")
   (route/not-found "Page not found"))
 
