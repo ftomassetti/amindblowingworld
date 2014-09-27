@@ -63,7 +63,7 @@
         name-settlement (.name language)
         pos (free-random-land)
         settlement (Settlement. id-settlement name-settlement 100 id-tribe pos)
-        tribe (Tribe. id-tribe nil nil [id-settlement])
+        tribe (Tribe. id-tribe name-tribe language [id-settlement])
         game (assoc-in game [:tribes id-tribe] tribe)
         game (assoc-in game [:settlements id-settlement] settlement)]
       (println "Creating tribe " tribe)
