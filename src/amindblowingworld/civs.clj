@@ -182,8 +182,8 @@
         pos (> new-pop (:pop s))
         s (assoc s :pop new-pop)]
     (if pos
-      (record-event (str "Population of " (.name s) " growing to " (.pop s)) nil)
-      (record-event (str "Population of " (.name s) " shrinking to " (.pop s)) nil))
+      (record-event (str "Population of " (.name s) " growing to " (.pop s)) (.pos s))
+      (record-event (str "Population of " (.name s) " shrinking to " (.pop s)) (.pos s)))
     (update-settlement s)))
 
 (defn ghost-town? [settlement]
@@ -210,7 +210,7 @@
         new-settlements-list (conj (.settlements tribe) (.id settlement))
         _ (update-tribe (assoc tribe :settlements new-settlements-list))
         _ (swap! game assoc-in [:settlements (.id settlement)] settlement)]
-      (record-event (str "Village " new-village-name " is born from " (.name old-village)) nil)
+      (record-event (str "Village " new-village-name " is born from " (.name old-village)) new-pos)
       (update-settlement-pop id-settlement pop-old-village)
       (run-randomly (update-settlement-fun id-new-settlement) (* fastness 3) (* fastness 10)))
     (catch AssertionError e (println "assertion failed: " (.getMessage e)))))
@@ -232,7 +232,7 @@
           (when (and (< (.pop s) 70) (chance 0.35))
             (update-settlement-pop id-settlement 0)
             (update-biome-map)
-            (record-event (str "Village " (.name s) " is now a ghost town") nil))
+            (record-event (str "Village " (.name s) " is now a ghost town") (.pos s)))
           (when (and (> (.pop s) 500) (chance 0.15))
             (spawn-new-village-from id-settlement)
             (update-biome-map)
