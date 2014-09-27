@@ -20,6 +20,8 @@
             [hiccup.page :as h]
             [hiccup.element :as e]))
 
+(def auth false)
+
 (defn call-github
   [endpoint access-token]
   (-> (format "https://api.github.com%s%s&access_token=%s"
@@ -37,7 +39,6 @@
 (def client-config
   {:client-id "60b87c4b4a6e4428e50d"
    :client-secret "096e27ebcf5c127f857b655bc136b050b6244edc"
-   ;;:callback {:domain "localhost:8000" :path "/"}
    :callback {:domain "http://amindblowingworld.clojurecup.com" :path "/"}
    })
 
@@ -61,30 +62,47 @@
                    [:title "AMindBlowingWorld"]
                    (h/include-js "/js/main.js")
                    (h/include-js "/js/app.js")]
-                  [:body (if (friend/identity req)
-                           {:onload "initApp();"}
-                           {})
-                   [:h1 "AMindBlowingWorld"]
-                   [:h3 "Authenticating via GitHub using OAuth2"]
-                   [:h3 "Current Status " [:small "(this will change when you log in/out)"]]
-                   (if-let [identity (friend/identity req)]
-                     [:p "Logged in as GitHub user "
-                      [:strong (get-github-handle (:current identity))]
-                      " with GitHub OAuth2 access token " (:current identity)]
-                     [:p [:a {:href "github.callback"} "Login with GitHub"]])
-                   [:h3 "App"]
-                   (if (friend/identity req)
+                  (if auth
+                    [:body (if (friend/identity req)
+                             {:onload "initApp();"}
+                             {})
+                     [:h1 "AMindBlowingWorld App"]
+                     [:h2 "Clojurecup 2014"]
+                     [:h3 "Authentication via GitHub using OAuth2"]
+                     [:p "Current Status (this will change when you log in/out):"]
+                     (if-let [identity (friend/identity req)]
+                       [:p "Logged in as GitHub user "
+                        [:strong (get-github-handle (:current identity))]
+                        " with GitHub OAuth2 access token " (:current identity)]
+                       [:p [:a {:href "github.callback"} "Login with GitHub"]])
+                     [:h3 "App"]
+                     (if (friend/identity req)
+                       [:div#appDiv
+                        [:div#world [:img#worldView {:src "/img/world.png"}]]
+                        [:div#menu "Menu"]
+                        [:div#news "News"]]
+                       [:div#appDiv
+                        [:div#world [:img#worldView {:src "/img/world.png"}]]
+                        [:div#menu "Menu"]
+                        [:div#news "News"]])
+                     [:h3 "Logging out"]
+                     [:p (e/link-to "/logout" "Click here to log out") "."]
+                     ]
+                    [:body {:onload "initApp();"}
+                     [:h1 "AMindBlowingWorld App"]
+                     [:h2 "Clojurecup 2014"]
+                     [:h3 "Authentication via GitHub using OAuth2"]
+                     [:p "Current Status (this will change when you log in/out):"]
+                     [:p "development code "]
+                     [:h3 "App"]
                      [:div#appDiv
                       [:div#world [:img#worldView {:src "/img/world.png"}]]
                       [:div#menu "Menu"]
                       [:div#news "News"]]
-                     [:div#appDiv
-                      [:div#world [:img#worldView {:src "/img/world.png"}]]
-                      [:div#menu "Menu"]
-                      [:div#news "News"]])
-                   [:h3 "Logging out"]
-                   [:p (e/link-to "/logout" "Click here to log out") "."]
-                   ]))
+                     [:h3 "Logging out"]
+                     [:p "Click here to log out" "."]
+                     ]
+                    )))
 
          ;; [:ul [:li (e/link-to (misc/context-uri req "role-user") "Requires the `user` role")]
         ;;  ;[:li (e/link-to (misc/context-uri req "role-admin") "Requires the `admin` role")]
@@ -110,20 +128,24 @@
   (route/not-found "Page not found"))
 
 (def app
+  (if auth
+    (-> main-routes
+        (friend/authenticate
+         {:allow-anon? true
+          :default-landing-uri "/"
+          :login-uri "/github.callback"
+          :unauthorized-handler #(-> (h/html5 [:h2 "You do not have sufficient privileges to access " (:uri %)])
+                                     resp/response
+                                     (resp/status 401))
+          :workflows [(oauth2wf/workflow
+                       {:client-config client-config
+                        :uri-config uri-config
+                        :config-auth config-auth
+                        ;;:access-token-parsefn oauth2u/get-access-token-from-params
+                        :access-token-parsefn #(-> % :body codec/form-decode (get "access_token"))
+                        })]})
+        handler/site
+        wrap-base-url)
   (-> main-routes
-      (friend/authenticate
-       {:allow-anon? true
-        :default-landing-uri "/"
-        :login-uri "/github.callback"
-        :unauthorized-handler #(-> (h/html5 [:h2 "You do not have sufficient privileges to access " (:uri %)])
-                                   resp/response
-                                   (resp/status 401))
-        :workflows [(oauth2wf/workflow
-                     {:client-config client-config
-                      :uri-config uri-config
-                      :config-auth config-auth
-                      ;;:access-token-parsefn oauth2u/get-access-token-from-params
-                      :access-token-parsefn #(-> % :body codec/form-decode (get "access_token"))
-                      })]})
       handler/site
-      wrap-base-url))
+      wrap-base-url)))
