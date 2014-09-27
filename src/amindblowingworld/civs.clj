@@ -81,6 +81,23 @@
       "SAVANNA"      1500
       "JUNGLE"       2500)))
 
+(defn altitude-color-factor [altitude]
+  (let [f (/ (Math/log (+ 1.0 altitude)) 15.0)]
+    f))
+
+(defn mix-values [a b f]
+  (+ (* f (float a)) (* (- 1.0 f) (float b))))
+
+(defn mix-colors [a b f]
+  (let [red (int (mix-values (.getRed a) (.getRed b) f))
+        green (int (mix-values (.getGreen a) (.getGreen b) f))
+        blue (int (mix-values (.getBlue a) (.getBlue b) f))]
+    (Color. red green blue)))
+
+(defn adapt-color-to-elevation [color x y]
+  (let [elevation (.get (.getElevation (get-world)) x y)]
+    (mix-colors (Color. 255 255 255) color (altitude-color-factor elevation))))
+
 (defn calc-biome-map [world]
   (let [ w (-> world .getDimension .getWidth)
          h (-> world .getDimension .getHeight)
@@ -93,20 +110,21 @@
         (if (settlement-at {:x x :y y})
           (.setColor g (Color. 255 0 0))
           (let [pos {:x x :y y}
-                biome (.get b x y)]
-            (case (.name biome)
-              "OCEAN"        (.setColor g (Color. 0 0 255))
-              "ICELAND"      (.setColor g (Color. 255 255 255))
-              "TUNDRA"       (.setColor g (Color. 141 227 218))
-              "ALPINE"       (.setColor g (Color. 141 227 218))
-              "GLACIER"      (.setColor g (Color. 255 255 255))
-              "GRASSLAND"    (.setColor g (Color. 80 173 88))
-              "ROCK_DESERT"  (.setColor g (Color. 105 120 59))
-              "SAND_DESERT"  (.setColor g (Color. 205 227 141))
-              "FOREST"       (.setColor g (Color. 59 120 64))
-              "SAVANNA"      (.setColor g (Color. 171 161 27))
-              "JUNGLE"       (.setColor g (Color. 5 227 34))
-              (.setColor g (Color. 255 0 0)))))
+                biome (.get b x y)
+            biome-color (case (.name biome)
+              "OCEAN"        (Color. 0 0 255)
+              "ICELAND"      (Color. 255 225 225)
+              "TUNDRA"       (Color. 141 227 218)
+              "ALPINE"       (Color. 141 227 218)
+              "GLACIER"      (Color. 255 225 225)
+              "GRASSLAND"    (Color. 80 173 88)
+              "ROCK_DESERT"  (Color. 105 120 59)
+              "SAND_DESERT"  (Color. 205 227 141)
+              "FOREST"       (Color. 59 120 64)
+              "SAVANNA"      (Color. 171 161 27)
+              "JUNGLE"       (Color. 5 227 34)
+              (Color. 255 0 0))]
+            (.setColor g (adapt-color-to-elevation biome-color x y))))
         (let [pixel-x (* x scale-factor)
               pixel-y (* y scale-factor)]
           (.fillRect g pixel-x pixel-y scale-factor scale-factor))))
