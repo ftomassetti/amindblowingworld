@@ -123,7 +123,7 @@
   (GET "/rest/totalpop" [] (total-pop-request))
   (GET "/rest/settlements" [] (settlements-request))
   (GET "/rest/tribes"      [] (tribes-request))
-  (GET ["/useractions/disaster/:x/:y", :x #"[0-9]+", :y #"[0-9]+"] [x y] (disaster-request (read-string x) (read-string y)))
+  (GET ["/useractions/disaster/:x/:y/:name", :x #"[0-9]+", :y #"[0-9]+"] [x y name] (disaster-request (read-string x) (read-string y) name))
   (route/resources "/")
   (route/not-found "Page not found"))
 

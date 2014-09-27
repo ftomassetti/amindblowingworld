@@ -4,7 +4,7 @@
             [amindblowingworld.civs :refer :all]
             [clojure.data.json :as json]))
 
-(defn disaster-request [x y]
+(defn disaster-request [x y name]
   (let [pos {:x x :y y}]
-    (disaster pos 20 "Vulcano" 0.5)
+    (disaster pos 20 name 0.5)
     (json/write-str "Ok")))
