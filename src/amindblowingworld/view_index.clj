@@ -12,6 +12,7 @@
   (html5
     [:head
       [:title "AMindBlowingWorld"]
+      (include-js "/js/jquery-1.9.0.js")
       (include-js "/js/app.js")
       (include-css "/css/app.css")]
     [:body {:onload "initApp();"}

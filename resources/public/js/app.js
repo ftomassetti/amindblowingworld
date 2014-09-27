@@ -20,10 +20,21 @@ function initApp() {
     startPeriodicNewsUpdate();
 }
 
+var lastNewsNumber = 0;
 function addNews(message) {
   newsSelect = document.getElementById('newsList');
-  newsSelect.options[newsSelect.options.length] = new Option(message, 'v_' + message);
-  if (newsSelect.options[newsSelect.options.length-2].selected) {
-    newsSelect.options[newsSelect.options.length-1].selected = true
+  var toSelectLast = false
+  if (newsSelect.options[newsSelect.options.length-1].selected) {
+      toSelectLast=true
   }
+  $.getJSON('/history/since/' + lastNewsNumber, function(jsonData) {
+    lastNewsNumber = jsonData[0]
+    for (i=0; i<jsonData[1].length; i++) {
+        data = jsonData[1][i];
+        newsSelect.options[newsSelect.options.length] = new Option(data.msg, 'v_' + message);
+    }
+    if (toSelectLast) {
+        newsSelect.options[newsSelect.options.length-1].selected = true
+    }
+  });
 }
