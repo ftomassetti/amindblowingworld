@@ -46,12 +46,13 @@
 (declare run-randomly)
 (declare get-settlement)
 (declare get-tribe)
+(declare get-next-id)
 
 (defn get-settlement [id]
   (get-in @game [:settlements id]))
 
 (defn get-tribe [id]
-  (get-in @game [:tribe id]))
+  (get-in @game [:tribes id]))
 
 (defn update-settlement [settlement]
   (let [id (.id settlement)]
@@ -97,6 +98,8 @@
   (time (let [img (calc-biome-map (get-world))]
     (def saved-biome-map img))))
 
+;(defn update-biome-map [] )
+
 ; --------------------------------------
 ; Tribe functions
 ; --------------------------------------
@@ -108,10 +111,20 @@
                 (.id s)
                 acc)) nil settlements)))
 
+(defn free-cell? [pos]
+  (nil? (settlement-at pos)))
+
 (defn land? [pos]
-  (let [ b (-> (get-world) .getBiome)
-         biome (.get b (:x pos) (:y pos))]
-    (not (= (.name biome) "OCEAN"))))
+  (let [x (:x pos) y (:y pos)
+        w (-> (get-world) .getDimension .getWidth)
+        h (-> (get-world) .getDimension .getHeight)]
+    (if (or (< x 0) (< y 0) (>= x w) (>= y h))
+      false
+      (let [ b (-> (get-world) .getBiome)
+             biome (.get b (:x pos) (:y pos))]
+        (not (= (.name biome) "OCEAN"))))))
+
+(def fastness 1000)
 
 (defn random-pos []
   (let [w (-> (get-world) .getDimension .getWidth)
@@ -124,6 +137,17 @@
     (if (land? rp)
       rp
       (free-random-land))))
+
+(defn free-random-land-near [center]
+  (let [cx (:x center)
+        cy (:y center)
+        all-cells-around (for [dx (range -5 5) dy (range -5 5)]
+                            {:x (+ cx dx) :y (+ cy dy)})
+        land-cells-around (filter land? all-cells-around)
+        free-land-cells-around (filter free-cell? land-cells-around)]
+    (if (empty? free-land-cells-around)
+      nil
+      (rand-nth free-land-cells-around))))
 
 (defn chance [p]
   (< (rand) p))
@@ -145,46 +169,80 @@
 (defn ghost-town? [settlement]
   (= 0 (.pop settlement)))
 
+(declare update-settlement-fun)
+
+(defn spawn-new-village-from [id-settlement]
+  (try
+    (let [old-village   (get-settlement id-settlement)
+        _               (assert (not (nil? id-settlement)) (str "Unable to find settlement " id-settlement " in game " @game))
+        tribe-id        (.owner old-village)
+        _               (assert (not (nil? tribe-id)) (str "Old village has no owner: " old-village))
+        tribe           (get-tribe tribe-id)
+        _               (assert (not (nil? tribe)) (str "No tribe found with id " tribe-id " in " @game))
+        language        (.language tribe)
+        new-village-name (.name language)
+        new-pos (free-random-land-near (.pos old-village))
+        _               (assert (not (nil? new-pos)))
+        pop-new-village 100
+        pop-old-village (- (.pop old-village) pop-new-village)
+        settlement (Settlement. (get-next-id) new-village-name pop-new-village (.id tribe) new-pos)
+        id-new-settlement (.id settlement)
+        new-settlements-list (conj (.settlements tribe) (.id settlement))
+        _ (update-tribe (assoc tribe :settlements new-settlements-list))
+        _ (swap! game assoc-in [:settlements (.id settlement)] settlement)]
+      (record-event (str "Village " new-village-name " is born from " (.name old-village)) nil)
+      (update-settlement-pop id-settlement pop-old-village)
+      (run-randomly (update-settlement-fun id-new-settlement) (* fastness 3) (* fastness 10)))
+    (catch AssertionError e (println "assertion failed: " (.getMessage e)))))
+
 (defn update-settlement-fun [id-settlement]
   (fn []
     (let [s     (get-settlement id-settlement)
           event (rand-nth [:growing :shrinking :stable])]
-      (when (not (ghost-town? s))
+      (when (and s (not (ghost-town? s)))
         (when (= event :growing)
-          (let [perc (+ 1.0 (/ (rand) 4.0))
+          (let [perc (+ 1.0 (/ (rand) 5.0))
                 new-pop (int (* (.pop s) perc))]
             (update-settlement-pop id-settlement new-pop)))
         (when (= event :shrinking)
-          (let [perc (- 1.00 (/ (rand) 4.0))
+          (let [perc (- 1.00 (/ (rand) 7.5))
                 new-pop (int (* (.pop s) perc))]
             (update-settlement-pop id-settlement new-pop)))
         (let [s (get-settlement id-settlement)]
-          (when (and (< (.pop s) 50) (chance 0.35))
+          (when (and (< (.pop s) 70) (chance 0.35))
             (update-settlement-pop id-settlement 0)
-            (record-event "Village " (.name s) " is now a ghost town")))))))
+            (update-biome-map)
+            (record-event (str "Village " (.name s) " is now a ghost town") nil))
+          (when (and (> (.pop s) 500) (chance 0.15))
+            (spawn-new-village-from id-settlement)
+            (update-biome-map)
+            ))))))
 
-(defn- create-tribe-in-game [game]
-  (let [id-tribe (.next-id game)
-        game (assoc game :next-id (inc id-tribe))
-        id-settlement (.next-id game)
-        game (assoc game :next-id (inc id-settlement))
-        language (generate-language)
-        name-tribe (.name language)
-        name-settlement (.name language)
-        pos (free-random-land)
-        settlement (Settlement. id-settlement name-settlement 100 id-tribe pos)
-        tribe (Tribe. id-tribe name-tribe language [id-settlement])
-        game (assoc-in game [:tribes id-tribe] tribe)
-        game (assoc-in game [:settlements id-settlement] settlement)]
-      (run-randomly (update-tribe-fun id-tribe) 3000 10000)
-      (run-randomly (update-settlement-fun id-settlement) 3000 10000)
-      (record-event (str "Creating tribe " name-tribe) pos)
-      (record-event (str "Creating village " name-settlement) pos)
-      (update-biome-map)
-    game))
+(defn get-next-id []
+  (let [next-id (.next-id @game)
+        _ (swap! game assoc :next-id (inc next-id))]
+    next-id))
 
 (defn create-tribe []
-  (swap! game create-tribe-in-game))
+  (try
+    (let [id-tribe        (get-next-id)
+          id-settlement   (get-next-id)
+          language        (generate-language)
+          name-tribe      (.name language)
+          name-settlement (.name language)
+          pos             (free-random-land)
+          settlement      (Settlement. id-settlement name-settlement 100 id-tribe pos)
+          tribe           (Tribe. id-tribe name-tribe language [id-settlement])
+          _               (update-tribe tribe)
+          _               (update-settlement settlement)]
+          _               (assert (= settlement (get-settlement id-settlement)))
+          _               (assert (= tribe (get-tribe id-tribe)))
+        (run-randomly (update-tribe-fun id-tribe) 3000 10000)
+        (run-randomly (update-settlement-fun id-settlement) (* fastness 3) (* fastness 10))
+        (record-event (str "Creating tribe " name-tribe) pos)
+        (record-event (str "Creating village " name-settlement) pos)
+        (update-biome-map))
+    (catch AssertionError e (println "Create tribe: " (.getMessage e)))))
 
 ; --------------------------------------
 ; Game functions
@@ -211,9 +269,11 @@
     (run-every-n-seconds f n)))
 
 (defn run-randomly [f min max]
-  (future (Thread/sleep (+ min (rand-int (- max min))))
-    (f)
-    (run-randomly f min max)))
+  (.start (Thread.
+    (fn []
+      (while true (do
+                    (Thread/sleep (+ min (rand-int (- max min))))
+                    (f)))))))
 
 (defn init []
   (run-every-n-seconds pop-balancer 10))

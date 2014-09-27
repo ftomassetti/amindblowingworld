@@ -1,6 +1,7 @@
 (ns amindblowingworld.routes
   (:use compojure.core
         amindblowingworld.views
+        amindblowingworld.rest
         ;; amindblowingworld.view_index
         [hiccup.middleware :only (wrap-base-url)])
   (:require [compojure.route :as route]
@@ -118,6 +119,9 @@
   ;;   (friend/authorize #{::users/admin} "You're an admin!"))
   (GET "/map.png" [] (response-biome-map))
   (GET ["/history/since/:event-id", :event-id #"[0-9]+"] [event-id] (history-since (read-string event-id)))
+  (GET "/rest/totalpop" [] (total-pop-request))
+  (GET "/rest/settlements" [] (settlements-request))
+  (GET "/rest/tribes"      [] (tribes-request))
   (route/resources "/")
   (route/not-found "Page not found"))
 
