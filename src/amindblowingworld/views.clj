@@ -1,7 +1,9 @@
 (ns amindblowingworld.views
   (:require
     [amindblowingworld.world :refer :all]
-    [amindblowingworld.civs :refer :all]))
+    [amindblowingworld.civs :refer :all]
+    [amindblowingworld.history :refer :all]
+    [clojure.data.json :as json]))
 
 ; ----------------------------------------------------
 ; Images
@@ -65,4 +67,10 @@
   (let [bm (biome-map (get-world))
         bytes (image-bytes bm "png")]
     (response-png-image-from-bytes bytes)))
+
+(defn- get-history-since [event-id]
+  [(.length @events) (subvec @events event-id)])
+
+(defn history-since [event-id]
+  (json/write-str (get-history-since event-id)))
 

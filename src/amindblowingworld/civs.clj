@@ -1,5 +1,6 @@
 (ns amindblowingworld.civs
-  (:require [amindblowingworld.world :refer :all]))
+  (:require [amindblowingworld.world :refer :all]
+            [amindblowingworld.history :refer :all]))
 
 (import '(com.github.lands.World))
 (import '(com.github.lands.Biome))
@@ -73,8 +74,8 @@
         tribe (Tribe. id-tribe name-tribe language [id-settlement])
         game (assoc-in game [:tribes id-tribe] tribe)
         game (assoc-in game [:settlements id-settlement] settlement)]
-      (println "Creating tribe " tribe)
-      (println "Creating settlement " settlement)
+      (record-event (str "Creating tribe " name-tribe) pos)
+      (record-event (str "Creating village " name-settlement) pos)
     game))
 
 (defn create-tribe []
@@ -93,6 +94,11 @@
     (if (< pop 1000)
       (create-tribe)
       (println "...nothing to do"))))
+
+(defn run-every-second [f]
+  (future (Thread/sleep 1000)
+    (f)
+    (run-every-second f)))
 
 (defn run-every-second [f]
   (future (Thread/sleep 1000)
