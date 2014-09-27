@@ -112,6 +112,8 @@
   (GET "/world" [] (index-page))
   (GET "/map.png" [] (response-biome-map))
   (GET ["/history/since/:event-id", :event-id #"[0-9]+"] [event-id] (history-since (read-string event-id)))
+  (GET "/rest/add-user/:name"  [name] (add-user-request name))
+  (GET "/rest/users"           []     (users-request))
   (GET "/rest/totalpop" [] (total-pop-request))
   (GET "/rest/settlements" [] (settlements-request))
   (GET "/rest/tribes"      [] (tribes-request))

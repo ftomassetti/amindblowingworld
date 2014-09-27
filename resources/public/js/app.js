@@ -15,9 +15,19 @@ function startPeriodicNewsUpdate() {
     }, 3000);
 }
 
+function createDisaster(x, y) {
+  $.get("/useractions/disaster/" + x + "/" + y + "/Vulcano", function( data ) {
+    if (data == "true") {
+      alert("Disaster close to vilage - damage caused");
+    } else {
+      alert("Disaster too far from any village - no damage")
+    }
+  });
+}
+
 function initApp() {
     var worldMap = document.getElementById("worldMap");
-    worldMap.onmousedown = function (event) { external_getCoordinates(worldMap, event) };
+    worldMap.onmousedown = function (event) { external_getCoordinates(worldMap, event, createDisaster) };
     startPeriodicMapUpdate(worldMap);
     startPeriodicNewsUpdate();
 }
