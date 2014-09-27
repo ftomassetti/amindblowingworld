@@ -1,5 +1,4 @@
-(ns amindblowingworld.world
-  )
+(ns amindblowingworld.world)
 
 (import '(com.github.lands.World))
 (import '(com.github.lands.Biome))
@@ -8,7 +7,7 @@
   (let [f (java.io.File. filename)]
     (. com.github.lands.PickleSerialization loadWorld f)))
 
-(def world (atom (load-world "worlds/seed_13038.world")))
+;(defonce world (atom (load-world "worlds/seed_13038.world")))
 
 (defn biome-matrix [world]
   (let [w (-> world .getDimension .getWidth)

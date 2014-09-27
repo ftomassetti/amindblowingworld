@@ -1,12 +1,8 @@
 (ns amindblowingworld.civs
-  )
+  (:require [amindblowingworld.world :refer :all]))
 
 (import '(com.github.lands.World))
 (import '(com.github.lands.Biome))
-
-(defn load-world [filename]
-  (let [f (java.io.File. filename)]
-    (. com.github.lands.PickleSerialization loadWorld f)))
 
 (def world (load-world "worlds/seed_13038.world"))
 
@@ -25,7 +21,11 @@
 ; Global state
 ; --------------------------------------
 
-(def world (atom (load-world "worlds/seed_13038.world")))
+;(def world (atom (load-world "worlds/seed_13038.world")))
+
+(def world (load-world "worlds/seed_13038.world"))
+
+(defn get-world [] world)
 
 (defn create-game []
   (Game. 1 {} {}))
@@ -36,14 +36,21 @@
 ; Tribe functions
 ; --------------------------------------
 
+(defn settlement-at [pos]
+  (let [settlements (vals (.settlements @game))]
+    (reduce (fn [acc s]
+              (if (= pos (.pos s))
+                (.id s)
+                acc)) nil settlements)))
+
 (defn land? [pos]
-  (let [ b (-> @world .getBiome)
+  (let [ b (-> (get-world) .getBiome)
          biome (.get b (:x pos) (:y pos))]
     (not (= (.name biome) "OCEAN"))))
 
 (defn random-pos []
-  (let [w (-> @world .getDimension .getWidth)
-        h (-> @world .getDimension .getHeight)]
+  (let [w (-> (get-world) .getDimension .getWidth)
+        h (-> (get-world) .getDimension .getHeight)]
     {:x (rand-int w) :y (rand-int h)}))
 
 ; TODO check if there is a village there
@@ -95,11 +102,4 @@
 (defn init []
   (run-every-second pop-balancer))
 
-(defn biome-matrix [world]
-  (let [w (-> world .getDimension .getWidth)
-        h (-> world .getDimension .getHeight)
-        b (-> world .getBiome)]
-    (for [y (range h)]
-      (for [x (range w)]
-        (.get b x y)))))
 
