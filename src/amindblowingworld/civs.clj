@@ -142,18 +142,26 @@
       (record-event (str "Population of " (.name s) " shrinking to " (.pop s)) nil))
     (update-settlement s)))
 
+(defn ghost-town? [settlement]
+  (= 0 (.pop settlement)))
+
 (defn update-settlement-fun [id-settlement]
   (fn []
     (let [s     (get-settlement id-settlement)
           event (rand-nth [:growing :shrinking :stable])]
-      (when (= event :growing)
-        (let [perc (+ 1.0 (/ (rand) 4.0))
-              new-pop (int (* (.pop s) perc))]
-          (update-settlement-pop id-settlement new-pop)))
-      (when (= event :shrinking)
-        (let [perc (- 1.00 (/ (rand) 4.0))
-              new-pop (int (* (.pop s) perc))]
-          (update-settlement-pop id-settlement new-pop))))))
+      (when (not (ghost-town? s))
+        (when (= event :growing)
+          (let [perc (+ 1.0 (/ (rand) 4.0))
+                new-pop (int (* (.pop s) perc))]
+            (update-settlement-pop id-settlement new-pop)))
+        (when (= event :shrinking)
+          (let [perc (- 1.00 (/ (rand) 4.0))
+                new-pop (int (* (.pop s) perc))]
+            (update-settlement-pop id-settlement new-pop)))
+        (let [s (get-settlement id-settlement)]
+          (when (and (< (.pop s) 50) (chance 0.35))
+            (update-settlement-pop id-settlement 0)
+            (record-event "Village " (.name s) " is now a ghost town")))))))
 
 (defn- create-tribe-in-game [game]
   (let [id-tribe (.next-id game)
