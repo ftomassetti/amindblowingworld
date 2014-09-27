@@ -1,6 +1,7 @@
 (ns amindblowingworld.routes
   (:use compojure.core
         amindblowingworld.views
+        amindblowingworld.view_index
         [hiccup.middleware :only (wrap-base-url)])
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
