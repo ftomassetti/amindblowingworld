@@ -233,6 +233,10 @@
 
 (declare update-settlement-fun)
 
+(defn rand-between [min max]
+  (let [diff (- max min)]
+    (+ min (rand-int diff))))
+
 (defn spawn-new-village-from [id-settlement]
   (try
     (let [old-village   (get-settlement id-settlement)
@@ -245,7 +249,7 @@
         new-village-name (.name language)
         new-pos (free-random-land-near (.pos old-village))
         _               (assert (not (nil? new-pos)))
-        pop-new-village 100
+        pop-new-village (rand-between (/ (.pop old-village) 5) (/ (.pop old-village) 3))
         pop-old-village (- (.pop old-village) pop-new-village)
         settlement (Settlement. (get-next-id) new-village-name pop-new-village (.id tribe) new-pos)
         id-new-settlement (.id settlement)
