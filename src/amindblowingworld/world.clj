@@ -1,7 +1,8 @@
-(ns amindblowingworld.views
+(ns amindblowingworld.world
   )
 
 (import '(com.github.lands.World))
+(import '(com.github.lands.Biome))
 
 (defn load-world [filename]
   (let [f (java.io.File. filename)]
