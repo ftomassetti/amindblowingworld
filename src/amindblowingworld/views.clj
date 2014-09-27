@@ -8,9 +8,12 @@
   (html5
     [:head
       [:title "AMindBlowingWorld"]
-      (include-js "/js/main.js")]
+      (include-js "/js/main.js")
+      (include-js "/js/app.js")]
     [:body
       [:h1 "AMindBlowingWorld"]
       [:div#authDiv "auth here"]
-      [:div#appDiv "app here" [:div#world]]
+      [:div#appDiv
+        [:div#world
+          [:img#worldView {:src "/img/world.png"}]]]
     ]))

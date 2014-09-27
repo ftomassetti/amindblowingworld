@@ -25,4 +25,4 @@
 (defn on-doc-ready []
   (aset  js/document "onreadystatechange" doc-ready-handler ))
 
-(on-doc-ready)
+;(on-doc-ready)
