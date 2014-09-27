@@ -3,7 +3,7 @@
         amindblowingworld.views
         amindblowingworld.rest
         amindblowingworld.useractions
-        ;; amindblowingworld.view_index
+        amindblowingworld.view_index
         [hiccup.middleware :only (wrap-base-url)])
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
@@ -118,6 +118,7 @@
   ;;   (friend/authorize #{::users/user} "You're a user!"))
   ;; #_(GET "/role-admin" req
   ;;   (friend/authorize #{::users/admin} "You're an admin!"))
+  (GET "/world" [] (index-page))
   (GET "/map.png" [] (response-biome-map))
   (GET ["/history/since/:event-id", :event-id #"[0-9]+"] [event-id] (history-since (read-string event-id)))
   (GET "/rest/totalpop" [] (total-pop-request))
