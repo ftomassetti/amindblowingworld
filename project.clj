@@ -5,6 +5,7 @@
   :dependencies [
     [org.clojure/clojure "1.5.1"]
     [org.clojure/clojurescript "0.0-2173" :exclusions [org.apache.ant/ant]]
+    [rm-hull/monet "0.2.1"]
     [compojure "1.1.6"]
     [hiccup "1.0.4"]]
   :plugins [
@@ -13,4 +14,6 @@
   :cljsbuild {
     :builds [{:source-paths ["src-cljs"]
     :compiler {:output-to "resources/public/js/main.js" :optimizations :whitespace :pretty-print true}}]}
-  :ring {:handler amindblowingworld.routes/app})
+  :ring {
+    :handler amindblowingworld.routes/app
+    :auto-reload? true})
