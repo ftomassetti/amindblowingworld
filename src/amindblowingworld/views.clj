@@ -63,10 +63,13 @@
     (.dispose g)
     img))
 
-(defn response-biome-map []
+(defn do-response-biome-map []
   (let [bm (biome-map (get-world))
         bytes (image-bytes bm "png")]
     (response-png-image-from-bytes bytes)))
+
+(defn response-biome-map[]
+  (time (do-response-biome-map)))
 
 (defn- get-history-since [event-id]
   [(.length @events) (subvec @events event-id)])
