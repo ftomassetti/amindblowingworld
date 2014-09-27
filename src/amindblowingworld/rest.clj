@@ -16,5 +16,11 @@
 (defn tribes-request []
   (json/write-str (map tribe-info (vals (:tribes @game)))))
 
+(defn- settlements-of-tribe [tribe-id]
+  (map get-settlement (:settlements (get-tribe tribe-id))))
+
+(defn tribe-settlements-request [tribe-id]
+  (json/write-str (map settlement-info (settlements-of-tribe tribe-id))))
+
 (defn settlements-request []
   (json/write-str (map settlement-info (vals (:settlements @game)))))

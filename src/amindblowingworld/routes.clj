@@ -2,7 +2,8 @@
   (:use compojure.core
         amindblowingworld.views
         amindblowingworld.rest
-        ;; amindblowingworld.view_index
+        amindblowingworld.useractions
+        amindblowingworld.view_index
         [hiccup.middleware :only (wrap-base-url)])
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
@@ -111,11 +112,14 @@
   ;;   (friend/authorize #{::users/user} "You're a user!"))
   ;; #_(GET "/role-admin" request
   ;;   (friend/authorize #{::users/admin} "You're an admin!"))
+  (GET "/world" [] (index-page))
   (GET "/map.png" [] (response-biome-map))
   (GET ["/history/since/:event-id", :event-id #"[0-9]+"] [event-id] (history-since (read-string event-id)))
   (GET "/rest/totalpop" [] (total-pop-request))
   (GET "/rest/settlements" [] (settlements-request))
   (GET "/rest/tribes"      [] (tribes-request))
+  (GET ["/rest/tribe/:id/settlements", :id #"[0-9]+"]   [id] (tribe-settlements-request (read-string id)))
+  (GET ["/useractions/disaster/:x/:y/:name", :x #"[0-9]+", :y #"[0-9]+"] [x y name] (disaster-request (read-string x) (read-string y) name))
   (route/resources "/")
   (route/not-found "Page not found"))
 

@@ -47,6 +47,7 @@
 (declare get-settlement)
 (declare get-tribe)
 (declare get-next-id)
+(declare update-settlement-pop)
 
 (defn get-settlement [id]
   (get-in @game [:settlements id]))
@@ -61,6 +62,24 @@
 (defn update-tribe [tribe]
   (let [id (.id tribe)]
     (swap! game assoc-in [:tribes id] tribe)))
+
+(defn population-supported [pos]
+  (let [x (:x pos)
+        y (:y pos)
+        b (-> (get-world) .getBiome)
+        biome (.get b x y)]
+    (case (.name biome)
+      "OCEAN"        0
+      "ICELAND"      100
+      "TUNDRA"       200
+      "ALPINE"       200
+      "GLACIER"      0
+      "GRASSLAND"    5000
+      "ROCK_DESERT"  500
+      "SAND_DESERT"  300
+      "FOREST"       3000
+      "SAVANNA"      1500
+      "JUNGLE"       2500)))
 
 (defn calc-biome-map [world]
   (let [ w (-> world .getDimension .getWidth)
@@ -126,6 +145,26 @@
 
 (def fastness 1000)
 
+(defn settlements-around [pos radius]
+  (let [cx (:x pos)
+        cy (:y pos)
+        all-cells-around (for [dx (range -5 5) dy (range -5 5)]
+                           {:x (+ cx dx) :y (+ cy dy)})
+        land-cells-around (filter land? all-cells-around)
+        settlements        (map settlement-at land-cells-around)
+        settlements       (filter (fn [s] (not (nil? s))) settlements)]
+    settlements))
+
+(defn disaster [pos radius name strength]
+  (let [settlements (settlements-around pos radius)]
+    (doseq [s-id settlements]
+      (let [ s (get-settlement s-id)
+             dead (int (* strength (.pop s)))
+             new-pop (- (.pop s) dead)]
+        (update-settlement-pop s-id new-pop)
+        (record-event (str dead " died in " (.name s) " because of " name) (.pos s))))
+    (not (empty? settlements))))
+
 (defn random-pos []
   (let [w (-> (get-world) .getDimension .getWidth)
         h (-> (get-world) .getDimension .getHeight)]
@@ -162,9 +201,12 @@
         pos (> new-pop (:pop s))
         s (assoc s :pop new-pop)]
     (if pos
-      (record-event (str "Population of " (.name s) " growing to " (.pop s)) nil)
-      (record-event (str "Population of " (.name s) " shrinking to " (.pop s)) nil))
-    (update-settlement s)))
+      (record-event (str "Population of " (.name s) " growing to " (.pop s)) (.pos s))
+      (record-event (str "Population of " (.name s) " shrinking to " (.pop s)) (.pos s)))
+    (update-settlement s)
+    (when (= (.pop s) 0)
+      (update-biome-map)
+      (record-event (str "Village " (.name s) " is now a ghost town") (.pos s)))))
 
 (defn ghost-town? [settlement]
   (= 0 (.pop settlement)))
@@ -190,15 +232,24 @@
         new-settlements-list (conj (.settlements tribe) (.id settlement))
         _ (update-tribe (assoc tribe :settlements new-settlements-list))
         _ (swap! game assoc-in [:settlements (.id settlement)] settlement)]
-      (record-event (str "Village " new-village-name " is born from " (.name old-village)) nil)
+      (record-event (str "Village " new-village-name " is born from " (.name old-village)) new-pos)
       (update-settlement-pop id-settlement pop-old-village)
       (run-randomly (update-settlement-fun id-new-settlement) (* fastness 3) (* fastness 10)))
     (catch AssertionError e (println "assertion failed: " (.getMessage e)))))
 
+(defn events-for [id-settlement]
+  (let [s (get-settlement id-settlement)
+        events [:growing :shrinking :stable]
+        pop (.pop s)
+        too-much-pop (> pop (population-supported (.pos s)))]
+    (if too-much-pop [:shrinking :stable :shrinking :stable :growing]
+      [:growing :shrinking :stable])))
+
 (defn update-settlement-fun [id-settlement]
   (fn []
-    (let [s     (get-settlement id-settlement)
-          event (rand-nth [:growing :shrinking :stable])]
+    (let [s (get-settlement id-settlement)
+          events (events-for id-settlement)
+          event (rand-nth events)]
       (when (and s (not (ghost-town? s)))
         (when (= event :growing)
           (let [perc (+ 1.0 (/ (rand) 5.0))
@@ -210,9 +261,7 @@
             (update-settlement-pop id-settlement new-pop)))
         (let [s (get-settlement id-settlement)]
           (when (and (< (.pop s) 70) (chance 0.35))
-            (update-settlement-pop id-settlement 0)
-            (update-biome-map)
-            (record-event (str "Village " (.name s) " is now a ghost town") nil))
+            (update-settlement-pop id-settlement 0))
           (when (and (> (.pop s) 500) (chance 0.15))
             (spawn-new-village-from id-settlement)
             (update-biome-map)

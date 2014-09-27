@@ -4,9 +4,9 @@ function log(msg) {
     }, 0);
 }
 
-function startPeriodicMapUpdate() {
+function startPeriodicMapUpdate(worldMap) {
     setInterval(function() {
-        document.getElementById('worldMap').src = '/map.png?rand=' + Math.random();
+        worldMap.src = '/map.png?rand=' + Math.random();
     }, 18000);
 }
 function startPeriodicNewsUpdate() {
@@ -16,7 +16,9 @@ function startPeriodicNewsUpdate() {
 }
 
 function initApp() {
-    startPeriodicMapUpdate();
+    var worldMap = document.getElementById("worldMap");
+    worldMap.onmousedown = function (event) { external_getCoordinates(worldMap, event) };
+    startPeriodicMapUpdate(worldMap);
     startPeriodicNewsUpdate();
 }
 
