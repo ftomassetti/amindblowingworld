@@ -12,7 +12,7 @@ function findPosition(oElement) {
   }
 }
 
-function external_getCoordinates(image, e) {
+function external_getCoordinates(image, e, coordinatesCallback) {
   var PosX = 0;
   var PosY = 0;
   var ImgPos;
@@ -28,5 +28,5 @@ function external_getCoordinates(image, e) {
   }
   PosX = PosX - ImgPos[0];
   PosY = PosY - ImgPos[1];
-  alert("X: " + PosX + "Y: " + PosY)
+  coordinatesCallback(PosX, PosY);
 }
