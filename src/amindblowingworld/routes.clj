@@ -20,7 +20,7 @@
             [hiccup.page :as h]
             [hiccup.element :as e]))
 
-(def auth false)
+(def auth true)
 
 (defn call-github
   [endpoint access-token]
@@ -39,7 +39,7 @@
 (def client-config
   {:client-id "60b87c4b4a6e4428e50d"
    :client-secret "096e27ebcf5c127f857b655bc136b050b6244edc"
-   :callback {:domain "http://amindblowingworld.clojurecup.com" :path "/authenticated"}
+   ;; :callback {:domain "http://amindblowingworld.clojurecup.com" :path "/oauth-github/github.callback"}
    })
 
 (def uri-config
@@ -92,23 +92,54 @@
       ]
     )))
 
-(defroutes main-routes
-  (GET "/" [request]
-         (render-main-page request))
+(defn render-login-page [request]
+  (h/html5
+   [:head
+    [:title "AMindBlowingWorld"]]
+   [:body
+    [:h1 "AMindBlowingWorld App"]
+    [:h2 "Clojurecup 2014"]
+    [:h3 "Authentication via GitHub using OAuth2"]
+    [:p "Current Status (this will change when you log in/out):"]
+    (if-let [identity (friend/identity request)]
+      [:p "Logged in as GitHub user "
+       [:strong (get-github-handle (:current identity))]
+       " with GitHub OAuth2 access token " (:current identity)]
+      [:p (e/link-to "/github.callback" "Login with GitHub")]) ;; link to login trigger
+    [:p "Debug:"]
+    [:p "r " (str request)]
+    [:p "id " (str (friend/identity request))]
+    [:p "token" (str (friend/current-authentication request))]
+    ]))
 
-         ;; [:ul [:li (e/link-to (misc/context-uri request "role-user") "Requires the `user` role")]
-        ;;  ;[:li (e/link-to (misc/context-uri request "role-admin") "Requires the `admin` role")]
-        ;;  [:li (e/link-to (misc/context-uri request "requires-authentication")
-        ;;         "Requires any authentication, no specific role requirement")]]
-        ;; [:h3 "Logging out"]
-        ;; [:p (e/link-to (misc/context-uri request "logout") "Click here to log out") "."])))
-  (friend/logout (ANY "/logout" request (ring.util.response/redirect "/")))
-  (GET "/authenticated" [request]
-    (friend/authorize #{::user} (render-main-page request)))
-  ;; (GET "/role-user" request
-  ;;   (friend/authorize #{::users/user} "You're a user!"))
-  ;; #_(GET "/role-admin" request
-  ;;   (friend/authorize #{::users/admin} "You're an admin!"))
+(defn render-authenticated-page [request]
+  (h/html5
+   [:head
+    [:title "AMindBlowingWorld"]]
+   [:body
+    [:h1 "AMindBlowingWorld App"]
+    [:h2 "Clojurecup 2014"]
+    [:h3 "Authentication via GitHub using OAuth2"]
+    [:p "Current Status (this will change when you log in/out):"]
+    (if-let [identity (friend/identity request)]
+      [:p "Logged in as GitHub user "
+       [:strong (get-github-handle (:current identity))]
+       " with GitHub OAuth2 access token " (:current identity)]
+      [:p "Something is wrong..."])
+    [:p (e/link-to "/logout" "Logout here") "."]
+    [:p "Debug:"]
+    [:p "r " (str request)]
+    [:p "id " (str (friend/identity request))]
+    [:p "token" (str (friend/current-authentication request))]
+    ]))
+
+(defroutes main-routes
+  (GET "/" request
+       (render-login-page request))
+  (GET "/authenticated" request
+       ;;(friend/authorize #{::user} (render-authenticated-page request))
+       (render-authenticated-page request)
+       )
   (GET "/world" [] (index-page))
   (GET "/map.png" [] (response-biome-map))
   (GET ["/history/since/:event-id", :event-id #"[0-9]+"] [event-id] (history-since (read-string event-id)))
@@ -119,26 +150,28 @@
   (GET "/rest/tribes"      [] (tribes-request))
   (GET ["/rest/tribe/:id/settlements", :id #"[0-9]+"]   [id] (tribe-settlements-request (read-string id)))
   (GET ["/useractions/disaster/:x/:y/:name", :x #"[0-9]+", :y #"[0-9]+"] [x y name] (disaster-request (read-string x) (read-string y) name))
+  (friend/logout (ANY "/logout" request (ring.util.response/redirect "/")))
   (route/resources "/")
   (route/not-found "Page not found"))
+
+(def friend-config
+  {:allow-anon? true
+   ;;:default-landing-uri "/"
+   :login-uri "/github.callback" ;; triggers login
+   :unauthorized-handler #(-> (h/html5 [:h2 "You do not have sufficient privileges to access " (:uri %)])
+                              resp/response
+                              (resp/status 401))
+   :workflows [(oauth2wf/workflow
+                {:client-config client-config
+                 :uri-config uri-config
+                 :config-auth config-auth
+                 :access-token-parsefn oauth2u/get-access-token-from-params
+                 })]})
 
 (def app
   (if auth
     (-> main-routes
-        (friend/authenticate
-         {:allow-anon? true
-          :default-landing-uri "/"
-          :login-uri "/github.callback"
-          :unauthorized-handler #(-> (h/html5 [:h2 "You do not have sufficient privileges to access " (:uri %)])
-                                     resp/response
-                                     (resp/status 401))
-          :workflows [(oauth2wf/workflow
-                       {:client-config client-config
-                        :uri-config uri-config
-                        :config-auth config-auth
-                        ;;:access-token-parsefn oauth2u/get-access-token-from-params
-                        :access-token-parsefn #(-> % :body codec/form-decode (get "access_token"))
-                        })]})
+        (friend/authenticate friend-config)
         handler/site
         wrap-base-url)
   (-> main-routes
