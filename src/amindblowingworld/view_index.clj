@@ -2,19 +2,32 @@
   (:require
     [hiccup
       [page :refer [html5]]
-      [page :refer [include-js]]]))
+      [page :refer [include-js include-css]]]))
+
+;(def map-legend []
+;  ()
+;)
 
 (defn index-page []
   (html5
     [:head
       [:title "AMindBlowingWorld"]
-      (include-js "/js/main.js")
-      (include-js "/js/app.js")]
+      (include-js "/js/jquery-1.9.0.js")
+      (include-js "/js/app.js")
+      (include-css "/css/app.css")]
     [:body {:onload "initApp();"}
       [:h1 "AMindBlowingWorld"]
       [:div#authDiv "auth here"]
       [:div#appDiv
-        [:div#world [:img#worldView {:src "/img/world.png"}]]
-        [:div#menu "Menu"]
-        [:div#news "News"]]
+        [:div#world.column
+          [:h3 "World Map"]
+          [:img#worldMap {:src "/map.png"}]]
+        [:div#menu.column
+          [:h3 "Menu"]
+          [:textarea {:cols "30" :rows "30"}]]
+        [:div#news.column
+          [:h3 "News"]
+          [:select#newsList {:size 30}
+            [:option {:value "v0" :selected "true"} "World created"]]]
+        [:br {:style "clear: right;"}]]
     ]))

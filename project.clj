@@ -14,7 +14,8 @@
     [compojure "1.1.6"]
     [hiccup "1.0.4"]
     [com.github.lands/lands-java-lib "0.3-SNAPSHOT"]
-    [org.clojure/math.combinatorics "0.0.8"]]
+    [org.clojure/math.combinatorics "0.0.8"]
+    [org.clojure/data.json "0.2.5"]]
   :plugins [
     [lein-cljsbuild "1.0.2"]
     [lein-ring "0.8.7"]]

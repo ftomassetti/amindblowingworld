@@ -1,7 +1,9 @@
 (ns amindblowingworld.views
   (:require
     [amindblowingworld.world :refer :all]
-    [amindblowingworld.civs :refer :all]))
+    [amindblowingworld.civs :refer :all]
+    [amindblowingworld.history :refer :all]
+    [clojure.data.json :as json]))
 
 ; ----------------------------------------------------
 ; Images
@@ -29,40 +31,19 @@
     :body (ByteArrayInputStream. bytes)
     })
 
-(defn biome-map [world]
-  (let [ w (-> world .getDimension .getWidth)
-         h (-> world .getDimension .getHeight)
-         scale-factor 5
-         img (BufferedImage. (* scale-factor w) (* scale-factor h) (BufferedImage/TYPE_INT_ARGB))
-         g (.createGraphics img)
-         b (-> world .getBiome)]
-    (doseq [y (range h)]
-      (doseq [x (range w)]
-        (if (settlement-at {:x x :y y})
-          (.setColor g (Color. 255 0 0))
-          (let [pos {:x x :y y}
-                biome (.get b x y)]
-            (case (.name biome)
-              "OCEAN"        (.setColor g (Color. 0 0 255))
-              "ICELAND"      (.setColor g (Color. 255 255 255))
-              "TUNDRA"       (.setColor g (Color. 141 227 218))
-              "ALPINE"       (.setColor g (Color. 141 227 218))
-              "GLACIER"      (.setColor g (Color. 255 255 255))
-              "GRASSLAND"    (.setColor g (Color. 80 173 88))
-              "ROCK_DESERT"  (.setColor g (Color. 105 120 59))
-              "SAND_DESERT"  (.setColor g (Color. 205 227 141))
-              "FOREST"       (.setColor g (Color. 59 120 64))
-              "SAVANNA"      (.setColor g (Color. 171 161 27))
-              "JUNGLE"       (.setColor g (Color. 5 227 34))
-              (.setColor g (Color. 255 0 0)))))
-          (let [pixel-x (* x scale-factor)
-                pixel-y (* y scale-factor)]
-            (.fillRect g pixel-x pixel-y scale-factor scale-factor))))
-    (.dispose g)
-    img))
+(defn biome-map []
+  (when (nil? saved-biome-map)
+    (update-biome-map))
+  saved-biome-map)
 
 (defn response-biome-map []
-  (let [bm (biome-map (get-world))
+  (let [bm (biome-map)
         bytes (image-bytes bm "png")]
     (response-png-image-from-bytes bytes)))
+
+(defn- get-history-since [event-id]
+  [(.length @events) (subvec @events event-id)])
+
+(defn history-since [event-id]
+  (json/write-str (get-history-since event-id)))
 
