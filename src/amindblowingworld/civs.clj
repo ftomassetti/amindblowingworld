@@ -94,9 +94,11 @@
         blue (int (mix-values (.getBlue a) (.getBlue b) f))]
     (Color. red green blue)))
 
-(defn adapt-color-to-elevation [color x y]
+(defn- adapt-color-to-elevation-real [color x y]
   (let [elevation (.get (.getElevation (get-world)) x y)]
     (mix-colors (Color. 255 255 255) color (altitude-color-factor elevation))))
+
+(def adapt-color-to-elevation (memoize adapt-color-to-elevation-real))
 
 (defn calc-biome-map [world]
   (let [ w (-> world .getDimension .getWidth)
