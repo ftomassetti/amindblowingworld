@@ -2,6 +2,7 @@
   (:use compojure.core
         amindblowingworld.views
         amindblowingworld.rest
+        amindblowingworld.useractions
         ;; amindblowingworld.view_index
         [hiccup.middleware :only (wrap-base-url)])
   (:require [compojure.route :as route]
@@ -104,6 +105,7 @@
   (GET "/rest/totalpop" [] (total-pop-request))
   (GET "/rest/settlements" [] (settlements-request))
   (GET "/rest/tribes"      [] (tribes-request))
+  (GET ["/useractions/disaster/:x/:y", :x #"[0-9]+", :y #"[0-9]+"] [x y] (disaster-request (read-string x) (read-string y)))
   (route/resources "/")
   (route/not-found "Page not found"))
 

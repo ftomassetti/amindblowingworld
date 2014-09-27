@@ -47,6 +47,7 @@
 (declare get-settlement)
 (declare get-tribe)
 (declare get-next-id)
+(declare update-settlement-pop)
 
 (defn get-settlement [id]
   (get-in @game [:settlements id]))
@@ -125,6 +126,25 @@
         (not (= (.name biome) "OCEAN"))))))
 
 (def fastness 1000)
+
+(defn settlements-around [pos radius]
+  (let [cx (:x pos)
+        cy (:y pos)
+        all-cells-around (for [dx (range -5 5) dy (range -5 5)]
+                           {:x (+ cx dx) :y (+ cy dy)})
+        land-cells-around (filter land? all-cells-around)
+        settlements        (map settlement-at land-cells-around)
+        settlements       (filter (fn [s] (not (nil? s))) settlements)]
+    settlements))
+
+(defn disaster [pos radius name strength]
+  (let [settlements (settlements-around pos radius)]
+    (doseq [s-id settlements]
+      (let [ s (get-settlement s-id)
+             dead (int (* strength (.pop s)))
+             new-pop (- (.pop s) dead)]
+        (update-settlement-pop s-id new-pop)
+        (record-event (str dead " died in " (.name s) " because of " name) (.pos s))))))
 
 (defn random-pos []
   (let [w (-> (get-world) .getDimension .getWidth)
