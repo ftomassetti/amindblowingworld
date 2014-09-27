@@ -4,6 +4,15 @@
             [amindblowingworld.civs :refer :all]
             [clojure.data.json :as json]))
 
+(def users (atom []))
+
+(defn add-user-request [name]
+  (swap! users conj name)
+  (json/write-str "OK"))
+
+(defn users-request []
+  (json/write-str @users))
+
 (defn total-pop-request []
   (json/write-str (total-pop)))
 
