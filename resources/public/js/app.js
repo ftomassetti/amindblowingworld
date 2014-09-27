@@ -6,7 +6,7 @@ function log(msg) {
 
 function startPeriodicMapUpdate() {
     setInterval(function() {
-        document.getElementById('worldView').src = '/map.png?rand=' + Math.random();
+        document.getElementById('worldMap').src = '/map.png?rand=' + Math.random();
     }, 1000);
 }
 

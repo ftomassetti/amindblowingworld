@@ -1,0 +1,11 @@
+#world {
+    width:400px;
+}
+#worldMap {
+    width:400px;
+}
+
+.column {
+    float:left;
+    width:200px;
+}
