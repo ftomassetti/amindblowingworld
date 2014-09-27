@@ -2,6 +2,7 @@
   :description "ACreativeTeamName's creation"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :repositories {"sonartype snapshots" "https://oss.sonatype.org/content/repositories/snapshots"}
   :dependencies [
     [org.clojure/clojure "1.5.1"]
     [org.clojure/clojurescript "0.0-2173" :exclusions [org.apache.ant/ant]]
