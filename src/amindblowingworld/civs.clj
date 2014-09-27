@@ -149,19 +149,26 @@
   (fn []
     (let [s     (get-settlement id-settlement)
           event (rand-nth [:growing :shrinking :stable])]
-      (when (not (ghost-town? s))
+      (when (and s (not (ghost-town? s)))
         (when (= event :growing)
-          (let [perc (+ 1.0 (/ (rand) 4.0))
+          (let [perc (+ 1.0 (/ (rand) 5.0))
                 new-pop (int (* (.pop s) perc))]
             (update-settlement-pop id-settlement new-pop)))
         (when (= event :shrinking)
-          (let [perc (- 1.00 (/ (rand) 4.0))
+          (let [perc (- 1.00 (/ (rand) 8.0))
                 new-pop (int (* (.pop s) perc))]
             (update-settlement-pop id-settlement new-pop)))
         (let [s (get-settlement id-settlement)]
-          (when (and (< (.pop s) 50) (chance 0.35))
+          (when (and (< (.pop s) 70) (chance 0.35))
             (update-settlement-pop id-settlement 0)
-            (record-event "Village " (.name s) " is now a ghost town")))))))
+            (update-biome-map)
+            (record-event (str "Village " (.name s) " is now a ghost town") nil))
+          (when (and (> (.pop s) 500) (chance 0.1))
+            (println "Spawning a new village")
+            (update-biome-map)
+            ))))))
+
+(def fastness 1000)
 
 (defn- create-tribe-in-game [game]
   (let [id-tribe (.next-id game)
@@ -177,7 +184,7 @@
         game (assoc-in game [:tribes id-tribe] tribe)
         game (assoc-in game [:settlements id-settlement] settlement)]
       (run-randomly (update-tribe-fun id-tribe) 3000 10000)
-      (run-randomly (update-settlement-fun id-settlement) 3000 10000)
+      (run-randomly (update-settlement-fun id-settlement) (* fastness 3) (* fastness 10))
       (record-event (str "Creating tribe " name-tribe) pos)
       (record-event (str "Creating village " name-settlement) pos)
       (update-biome-map)
