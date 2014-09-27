@@ -43,7 +43,17 @@
         (let [pos {:x x :y y}
               biome (.get b x y)]
           (case (.name biome)
-            "OCEAN" (.setColor g (Color. 0 0 255))
+            "OCEAN"        (.setColor g (Color. 0 0 255))
+            "ICELAND"      (.setColor g (Color. 255 255 255))
+            "TUNDRA"       (.setColor g (Color. 141 227 218))
+            "ALPINE"       (.setColor g (Color. 141 227 218))
+            "GLACIER"      (.setColor g (Color. 255 255 255))
+            "GRASSLAND"    (.setColor g (Color. 80 173 88))
+            "ROCK_DESERT"  (.setColor g (Color. 105 120 59))
+            "SAND_DESERT"  (.setColor g (Color. 205 227 141))
+            "FOREST"       (.setColor g (Color. 59 120 64))
+            "SAVANNA"      (.setColor g (Color. 171 161 27))
+            "JUNGLE"       (.setColor g (Color. 5 227 34))
             (.setColor g (Color. 255 0 0)))
           (let [pixel-x (* x scale-factor)
                 pixel-y (* y scale-factor)]
