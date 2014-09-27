@@ -263,11 +263,17 @@
 
 (defn events-for [id-settlement]
   (let [s (get-settlement id-settlement)
+        _ (assert (not (nil? s)) (str "Settlement with id " id-settlement " not found"))
         events [:growing :shrinking :stable]
         pop (.pop s)
         too-much-pop (> pop (population-supported (.pos s)))]
     (if too-much-pop [:shrinking :stable :shrinking :stable :growing]
       [:growing :shrinking :stable])))
+
+(defn close-to-population-supported [s]
+  (let [ps (population-supported (.pos s))
+        pop (.pop s)]
+    (> pop (* 0.8 ps))))
 
 (defn update-settlement-fun [id-settlement]
   (fn []
@@ -284,9 +290,9 @@
                 new-pop (int (* (.pop s) perc))]
             (update-settlement-pop id-settlement new-pop)))
         (let [s (get-settlement id-settlement)]
-          (when (and (< (.pop s) 70) (chance 0.35))
+          (when (and (< (.pop s) 50) (chance 0.35))
             (update-settlement-pop id-settlement 0))
-          (when (and (> (.pop s) 500) (chance 0.15))
+          (when (and (close-to-population-supported s) (chance 0.15))
             (spawn-new-village-from id-settlement)
             (update-biome-map)
             ))))))
