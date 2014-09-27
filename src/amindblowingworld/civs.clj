@@ -103,11 +103,18 @@
             elev-top-left (.get elevationMatrix (:x top-left) (:y top-left))]
         (> elev-top-left elev-p)))))
 
+(defn shadow [elevationMatrix p]
+  (let [top-left (top-left-of p)]
+    (if (nil? top-left)
+      0.0
+      (let [elev-p        (.get elevationMatrix (:x p) (:y p))
+            elev-top-left (.get elevationMatrix (:x top-left) (:y top-left))]
+        (/ (Math/log (+ 1.0 (max 0.0 (- elev-top-left elev-p)))) 3.0)))))
+
 (defn- shadow-color-factor-helper [elevationMatrix p n]
   (if (and (> n 0) (not (nil? p)))
-    (+ (if (is-in-shadow? elevationMatrix p)
-         (* n 0.1)
-      0.0) (shadow-color-factor-helper elevationMatrix (top-left-of p) (dec n)))
+    (+ (shadow elevationMatrix p)
+       (shadow-color-factor-helper elevationMatrix (top-left-of p) (dec n)))
     0.0))
 
 (defn shadow-color-factor-real [elevationMatrix p]
@@ -162,8 +169,8 @@
           (let [pos {:x x :y y}
                 biome (.get b x y)
                 biome-color (get-biome-color biome)]
-            ;(.setColor g (adapt-color-to-elevation em biome-color x y))))
-            biome-color))
+            (.setColor g (adapt-color-to-elevation em biome-color x y))))
+            ;biome-color))
         (let [pixel-x (* x scale-factor)
               pixel-y (* y scale-factor)]
           (.fillRect g pixel-x pixel-y scale-factor scale-factor))))
@@ -270,6 +277,10 @@
 
 (declare update-settlement-fun)
 
+(defn rand-between [min max]
+  (let [diff (- max min)]
+    (+ min (rand-int diff))))
+
 (defn spawn-new-village-from [id-settlement]
   (try
     (let [old-village   (get-settlement id-settlement)
@@ -282,7 +293,7 @@
         new-village-name (.name language)
         new-pos (free-random-land-near (.pos old-village))
         _               (assert (not (nil? new-pos)))
-        pop-new-village 100
+        pop-new-village (rand-between (/ (.pop old-village) 5) (/ (.pop old-village) 3))
         pop-old-village (- (.pop old-village) pop-new-village)
         settlement (Settlement. (get-next-id) new-village-name pop-new-village (.id tribe) new-pos)
         id-new-settlement (.id settlement)
@@ -296,11 +307,17 @@
 
 (defn events-for [id-settlement]
   (let [s (get-settlement id-settlement)
+        _ (assert (not (nil? s)) (str "Settlement with id " id-settlement " not found"))
         events [:growing :shrinking :stable]
         pop (.pop s)
         too-much-pop (> pop (population-supported (.pos s)))]
     (if too-much-pop [:shrinking :stable :shrinking :stable :growing]
       [:growing :shrinking :stable])))
+
+(defn close-to-population-supported [s]
+  (let [ps (population-supported (.pos s))
+        pop (.pop s)]
+    (> pop (* 0.8 ps))))
 
 (defn update-settlement-fun [id-settlement]
   (fn []
@@ -317,9 +334,9 @@
                 new-pop (int (* (.pop s) perc))]
             (update-settlement-pop id-settlement new-pop)))
         (let [s (get-settlement id-settlement)]
-          (when (and (< (.pop s) 70) (chance 0.35))
+          (when (and (< (.pop s) 50) (chance 0.35))
             (update-settlement-pop id-settlement 0))
-          (when (and (> (.pop s) 500) (chance 0.15))
+          (when (and (close-to-population-supported s) (chance 0.15))
             (spawn-new-village-from id-settlement)
             (update-biome-map)
             ))))))
@@ -343,7 +360,7 @@
           _               (update-settlement settlement)]
           _               (assert (= settlement (get-settlement id-settlement)))
           _               (assert (= tribe (get-tribe id-tribe)))
-        (run-randomly (update-tribe-fun id-tribe) 3000 10000)
+        (run-randomly (update-tribe-fun id-tribe) (* 3 fastness) (* 10 fastness))
         (run-randomly (update-settlement-fun id-settlement) (* fastness 3) (* fastness 10))
         (record-event (str "Creating tribe " name-tribe) pos)
         (record-event (str "Creating village " name-settlement) pos)
@@ -370,7 +387,7 @@
     (run-every-second f)))
 
 (defn run-every-n-seconds [f n]
-  (future (Thread/sleep (* n 1000))
+  (future (Thread/sleep (* n 1 fastness))
     (f)
     (run-every-n-seconds f n)))
 
