@@ -39,7 +39,7 @@
 (def client-config
   {:client-id "60b87c4b4a6e4428e50d"
    :client-secret "096e27ebcf5c127f857b655bc136b050b6244edc"
-   :callback {:domain "http://amindblowingworld.clojurecup.com" :path "/"}
+   :callback {:domain "http://amindblowingworld.clojurecup.com" :path "/authenticated"}
    })
 
 (def uri-config
@@ -94,9 +94,7 @@
 
 (defroutes main-routes
   (GET "/" [request]
-       (if auth
-         (friend/authorize #{::user} (render-main-page request))
-         (render-main-page request)))
+         (render-main-page request))
 
          ;; [:ul [:li (e/link-to (misc/context-uri request "role-user") "Requires the `user` role")]
         ;;  ;[:li (e/link-to (misc/context-uri request "role-admin") "Requires the `admin` role")]
@@ -104,10 +102,9 @@
         ;;         "Requires any authentication, no specific role requirement")]]
         ;; [:h3 "Logging out"]
         ;; [:p (e/link-to (misc/context-uri request "logout") "Click here to log out") "."])))
-  (GET "/logout" request
-    (friend/logout* (resp/redirect (str (:context request) "/"))))
-  ;; (GET "/requires-authentication" request
-  ;;   (friend/authenticated "Thanks for authenticating!"))
+  (friend/logout (ANY "/logout" request (ring.util.response/redirect "/")))
+  (GET "/authenticated" [request]
+    (friend/authorize #{::user} (render-main-page request)))
   ;; (GET "/role-user" request
   ;;   (friend/authorize #{::users/user} "You're a user!"))
   ;; #_(GET "/role-admin" request
@@ -128,8 +125,8 @@
     (-> main-routes
         (friend/authenticate
          {:allow-anon? true
-          ;;:default-landing-uri "/"
-          ;;:login-uri "/"
+          :default-landing-uri "/"
+          :login-uri "/github.callback"
           :unauthorized-handler #(-> (h/html5 [:h2 "You do not have sufficient privileges to access " (:uri %)])
                                      resp/response
                                      (resp/status 401))
@@ -137,8 +134,8 @@
                        {:client-config client-config
                         :uri-config uri-config
                         :config-auth config-auth
-                        :access-token-parsefn oauth2u/get-access-token-from-params
-                        ;;:access-token-parsefn #(-> % :body codec/form-decode (get "access_token"))
+                        ;;:access-token-parsefn oauth2u/get-access-token-from-params
+                        :access-token-parsefn #(-> % :body codec/form-decode (get "access_token"))
                         })]})
         handler/site
         wrap-base-url)
