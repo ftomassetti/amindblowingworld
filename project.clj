@@ -4,6 +4,11 @@
   :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
   :repositories {"sonartype snapshots" "https://oss.sonatype.org/content/repositories/snapshots"}
   :dependencies [
+    [com.cemerick/friend "0.2.0"]
+    [friend-oauth2 "0.1.1"]
+    [ring "1.3.1"]
+    [cheshire "5.3.1"]
+    [clj-http "0.7.7"]
     [org.clojure/clojure "1.5.1"]
     [org.clojure/clojurescript "0.0-2173" :exclusions [org.apache.ant/ant]]
     [compojure "1.1.6"]
