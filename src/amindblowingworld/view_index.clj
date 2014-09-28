@@ -68,7 +68,9 @@
               [:div#usersList "Nobody is regitered yet!"]
               [:br]
               [:input#login {:type "text"}]
-              [:input#registerUser {:type "button" :value "Login and damage!"}]]
+              [:input#registerUser {:type "button" :value "Login and damage!"}]
+              [:div#worldpop
+                [:span.worldpopLabel "Total population: "] [:span.worldpopValue "0"]]]
             [:br {:style "clear: right;"}]]
           [:h3 "Tribes and settlements"]
           [:div#tableDiv

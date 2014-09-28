@@ -228,4 +228,10 @@ $(document).ready(function(){
             });
         }
     });
+
+    setInterval(function() {
+        $.getJSON("/rest/totalpop", function(data){
+          $(".worldpopValue").html(data.toString());
+        });
+    }, 5000);
 });
