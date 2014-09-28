@@ -15,7 +15,16 @@ function startPeriodicNewsUpdate() {
     }, 3000);
 }
 
+var global_userName=""
+function isCurrentUserRegistered() {
+  return global_userName!=""
+}
+
 function createDisaster(x, y) {
+  if (!isCurrentUserRegistered()) {
+    $("#notLoggedInDialog").dialog("open");
+    return;
+  }
   var damageName = $('input[name=damage]:checked', '#damageReasons').val()
   $.get("/useractions/disaster/" + x + "/" + y + "/" + damageName, function( data ) {
     if (data == "true") {
@@ -32,17 +41,18 @@ function initApp() {
     startPeriodicMapUpdate(worldMap);
     startPeriodicNewsUpdate();
     $("#accordion").accordion();
+    $("#notLoggedInDialog").dialog({ autoOpen: false });
 }
 
-var lastNewsNumber = 0;
+var global_lastNewsNumber = 0;
 function addNews(message) {
   newsSelect = document.getElementById('newsList');
   var toSelectLast = false
   if (newsSelect.options[newsSelect.options.length-1].selected) {
       toSelectLast=true
   }
-  $.getJSON('/history/since/' + lastNewsNumber, function(jsonData) {
-    lastNewsNumber = jsonData[0]
+  $.getJSON('/history/since/' + global_lastNewsNumber, function(jsonData) {
+    global_lastNewsNumber = jsonData[0]
     for (i=0; i<jsonData[1].length; i++) {
         data = jsonData[1][i];
         newsSelect.options[newsSelect.options.length] = new Option(data.msg, 'v_' + message);

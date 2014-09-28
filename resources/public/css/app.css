@@ -15,6 +15,13 @@ body {
     width:300px;
 }
 
+#menu {
+    width:150px;
+}
+#users {
+    width:150px;
+}
+
 #appViewport {
     width: 1200px;
     margin-left: auto;

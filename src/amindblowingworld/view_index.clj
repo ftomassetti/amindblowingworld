@@ -56,7 +56,14 @@
               [:h3 "News"]
               [:select#newsList {:size 30}
                 [:option {:value "v0" :selected "true"} "World created"]]]
+            [:div#users.column
+              [:h3 "Registered users"]
+              [:div#usersList "Nobody is regitered yet!"]
+              [:br]
+              [:input#login {:type "text"}]
+              [:input#registerUser {:type "button" :value "Login and damage!"}]]
             [:br {:style "clear: right;"}]]
           [:h3 "Tribes and villages - table"]
-          [:div#tableDiv]]]
+          [:div#tableDiv]]
+        [:div#notLoggedInDialog {:title "Please Login"} [:p "You must LogIn to be able to damage the world"]]]
     ]))
