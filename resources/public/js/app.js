@@ -151,9 +151,10 @@ function startPeriodicUsersCheck() {
     }, 6000);
 }
 
-var global_userName=""
+var global_userName = "";
+
 function isCurrentUserRegistered() {
-  return global_userName!=""
+  return global_userName!="";
 }
 
 function registerUser() {
@@ -169,7 +170,7 @@ function registerUser() {
       $("#login").attr("disabled","disabled");
       $("#registerUser").remove();
     } else {
-      alert("User is not regitered. Username: " + userName + ", server response: " + data)
+      alert("User is not registered. Username: " + userName + ", server response: " + data);
     }
   });
 }
@@ -258,18 +259,54 @@ function addNews(message) {
   });
 }
 
+function updateTable()
+{
+    $.getJSON('/rest/tribes-and-settlements', function(jsonData) {
+        var newData = {};
+        $.each(jsonData, function(i,myData){
+            $.each(myData, function(i,rowData){
+                var settlementId = rowData[0];
+                console.log(" fromServer * ["+settlementId+"] "+rowData);
+                newData[settlementId] = rowData;
+            });
+            //$('#tribesAndSettlements').DataTable().row(settlemendId).data(rowData)
+        });
+        var dataInTable = $('#tribesAndSettlements').DataTable().data();
+
+        $.each(dataInTable, function(i,rowData){
+            var settlementId = rowData[0];
+            console.log(" inTable * ["+settlementId+"] "+rowData);
+            if (newData[settlementId] && newData[settlementId][3]>0) {
+                console.log("   to be updated from "+rowData+" to "+newData[settlementId][3]);
+            } else {
+                console.log("   removing "+i+" "+rowData+" POP "+newData[settlementId][3]);
+                //var dataInTable = $('#tribesAndSettlements').DataTable().row($('tr')[i]).remove();
+            }
+            newData[settlementId] = undefined;
+        });
+        $.each(newData, function(i,rowData){
+            if (rowData) {
+                console.log("ROW TO BE ADDED "+rowData);
+            }
+        });
+        var dataInTable = $('#tribesAndSettlements').DataTable().draw();
+    });
+}
+
 $(document).ready(function(){
     $("#accordion").accordion({
         beforeActivate: function( event, ui ) {
             var hidingMap = eval($("#ui-id-1").attr("aria-expanded"));
             $.each(Object.keys(global_displayedSettlements), function(i, settlementId){
-
                 if (hidingMap) {
                     $("#settlement_"+settlementId).hide();
                 } else {
                     $("#settlement_"+settlementId).show();
                 }
             });
+            if (hidingMap) {
+                updateTable();
+            };
         }
     });
 
