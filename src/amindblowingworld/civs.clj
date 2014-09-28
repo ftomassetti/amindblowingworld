@@ -127,7 +127,7 @@
              biome (.get b (:x pos) (:y pos))]
         (not (= (.name biome) "OCEAN"))))))
 
-(def fastness 10000)
+(def fastness 100)
 
 (defn settlements-around [pos radius]
   (let [cx (:x pos)
@@ -211,7 +211,7 @@
         tribe           (get-tribe tribe-id)
         _               (assert (not (nil? tribe)) (str "No tribe found with id " tribe-id " in " @game))
         language        (:language tribe)
-        new-village-name (:name language)
+        new-village-name (.name language)
         new-pos (free-random-land-near (:pos old-village) 10)
         _               (assert (not (nil? new-pos)))
         pop-new-village (rand-between (/ (:pop old-village) 5) (/ (:pop old-village) 3))
@@ -272,8 +272,8 @@
     (let [id-tribe        (get-next-id)
           id-settlement   (get-next-id)
           language        (generate-language)
-          name-tribe      (:name language)
-          name-settlement (:name language)
+          name-tribe      (.name language)
+          name-settlement (.name language)
           pos             (free-random-land)
           settlement      (Settlement. id-settlement name-settlement 100 id-tribe pos)
           tribe           (Tribe. id-tribe name-tribe language [id-settlement])
