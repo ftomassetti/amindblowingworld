@@ -80,6 +80,10 @@ function initApp() {
 
 function createMessagePopup(msgid,x,y,message)
 {
+    if (!eval($("#ui-id-1").attr("aria-expanded")))
+    {
+        return;
+    }
     var worldMap = document.getElementById("worldMap");
     var baseX = worldMap.getBoundingClientRect().x;
     var baseY = worldMap.getBoundingClientRect().y;
