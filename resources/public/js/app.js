@@ -158,15 +158,22 @@ function isCurrentUserRegistered() {
 
 function registerUser() {
   var userName = $("#login").val().trim();
+  var passWord = $("#passwrd").val().trim();
   if (userName == "") {
     alert("Username is empty!")
     return;
   }
-  $.get("/rest/add-user/" + userName, function(data) {
+  if (passWord == "") {
+    alert("Password is empty!")
+    return;
+  }
+  $.get("/rest/add-user/" + userName + "/" + passWord, function(data) {
     if (data.toString().indexOf("OK")>-1) {
       global_userName = userName;
-      $("#login").val("Your username: " + userName);
+      $("#login").val(userName);
       $("#login").attr("disabled","disabled");
+      $("#passwrd").val("Password ok!");
+      $("#passwrd").attr("disabled","disabled");
       $("#registerUser").remove();
     } else {
       alert("User is not regitered. Username: " + userName + ", server response: " + data)
