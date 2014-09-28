@@ -47,3 +47,14 @@
 
 (defn tribes-and-settlements-request []
   (json/write-str (tribes-and-settlements (map settlement-info (vals (:settlements @game))))))
+
+(defn settlement-info-request [settlement-id]
+  (let [ s (get-settlement settlement-id)
+         desc (if (nil? s)
+                ""
+                (let [name  (.name s)
+                      tribe (.name (get-tribe (.owner s)))
+                      pop   (.pop s)]
+                  (str "Name: " name "<br/>Tribe: " tribe "<br/>Pop: " pop)))]
+    (println "DESC=" desc)
+    (json/write-str desc)))

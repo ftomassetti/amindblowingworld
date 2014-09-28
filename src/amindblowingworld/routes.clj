@@ -150,6 +150,7 @@
   (GET "/rest/tribes-and-settlements" [] (tribes-and-settlements-request))
   (GET "/rest/tribes"      [] (tribes-request))
   (GET ["/rest/tribe/:id/settlements", :id #"[0-9]+"]   [id] (tribe-settlements-request (read-string id)))
+  (GET ["/rest/settlement/:id", :id #"[0-9]+"]   [id] (settlement-info-request (read-string id)))
   (GET ["/useractions/disaster/:x/:y/:name", :x #"[0-9]+", :y #"[0-9]+"] [x y name] (disaster-request (read-string x) (read-string y) name))
 ;auth;  (friend/logout (ANY "/logout" request (ring.util.response/redirect "/")))
   (route/resources "/")

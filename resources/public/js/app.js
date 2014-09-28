@@ -19,6 +19,44 @@ function setSettlementPosition(element,x,y)
     }
 }
 
+function showSettlementInfo(settlementId, x, y, name)
+{
+    if (!eval($("#ui-id-1").attr("aria-expanded")))
+    {
+        return;
+    }
+
+    if ($('#settlement_info_'+settlementId).length)
+    {
+        return;
+    }
+
+    var worldMap = document.getElementById("worldMap");
+    var baseX = worldMap.getBoundingClientRect().x;
+    var baseY = worldMap.getBoundingClientRect().y;
+
+    var myLayer = document.createElement('div');
+    myLayer.id = 'settlement_info_'+settlementId;
+    myLayer.style.position = 'absolute';
+    myLayer.style.left = (baseX+x-16)+'px';
+    myLayer.style.top = (baseY+y+10)+'px';
+    myLayer.style.padding = '2px';
+    myLayer.style.margin = '0';
+    myLayer.style.border = '1px black solid';
+    myLayer.style.padding = '2px';
+    myLayer.style.backgroundColor = '#CCC';
+    myLayer.innerHTML = "Info on "+name+"...";
+    document.body.appendChild(myLayer);
+
+    $.getJSON("/rest/settlement/"+settlementId, function(data){
+        console.log("Data "+data);
+        myLayer.innerHTML = data;
+    });
+
+    setTimeout(function() { $('#settlement_info_'+settlementId).fadeOut("slow"); }, 3500);
+    //global_displayedSettlements[settlementId] = myLayer;
+}
+
 function createSettlementIcon(settlementId,x,y,name)
 {
     if (!eval($("#ui-id-1").attr("aria-expanded")))
@@ -42,6 +80,7 @@ function createSettlementIcon(settlementId,x,y,name)
     myLayer.style.width = '12px';
     myLayer.style.height = '12px';
     myLayer.onmousedown = function (event) { external_getCoordinates(worldMap, event, createDisaster) };
+    myLayer.onmouseover = function (event) { showSettlementInfo(settlementId, x, y, name); };
     //myLayer.innerHTML = "Village "+name;
     document.body.appendChild(myLayer);
 
