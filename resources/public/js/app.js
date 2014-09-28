@@ -67,7 +67,6 @@ function startPeriodicMapUpdate(worldMap) {
                     //console.log("* Settlement " + settlement.pop + " = "+settlement.name+", pos "+settlement.pos.x+", id "+settlement.id);
                     var existingIcon = $("#settlement_"+settlement.id);
                     if (existingIcon.length) {
-                        console.log("MOVING");
                         setSettlementPosition(existingIcon,settlement.pos.x,settlement.pos.y);
                     } else {
                         //console.log("Icon not found for "+settlement.id);
@@ -137,7 +136,6 @@ function createDisaster(x, y) {
     return;
   }
   var damageName = $('input[name=damage]:checked', '#damageReasons').val()
-  console.log("Disaster in "+x+" "+y);
   $.get("/useractions/disaster/" + x + "/" + y + "/" + damageName, function( data ) {
     if (data == "true") {
       alert("Disaster close to vilage - damage caused");
