@@ -15,6 +15,20 @@ function startPeriodicNewsUpdate() {
     }, 3000);
 }
 
+function startPeriodicUsersCheck() {
+    setInterval(function() {
+        $.getJSON("/rest/users", function(data){
+          if (data.length > 0) {
+            usersHtml = "";
+            for (i=0; i<data.length; i++) {
+              usersHtml+=data[i] + "<br/>";
+            }
+            $("#usersList").html(usersHtml);
+          }
+        });
+    }, 6000);
+}
+
 var global_userName=""
 function isCurrentUserRegistered() {
   return global_userName!=""
@@ -58,6 +72,7 @@ function initApp() {
     worldMap.onmousedown = function (event) { external_getCoordinates(worldMap, event, createDisaster) };
     startPeriodicMapUpdate(worldMap);
     startPeriodicNewsUpdate();
+    startPeriodicUsersCheck();
     $("#accordion").accordion();
     $("#notLoggedInDialog").dialog({ autoOpen: false });
     $("#registerUser").click(registerUser);
