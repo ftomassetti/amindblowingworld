@@ -97,7 +97,7 @@
        [:table#tribesAndSettlements {:class "display" :cellspacing "0" :width "100%"}
         [:thead (table-headers)]
         [:tfoot (table-headers)]]]
-      [:h3 "About AMindBlowingWorld"]
+      [:h3 "About A-Mind-Blowing-World"]
       [:div#aboutDiv
        [:div.longText
         [:p "This application was built while paricipating in the "
