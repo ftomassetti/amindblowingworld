@@ -27,6 +27,9 @@
 
 (defn damage-reasons [damages isChecked]
   (map (fn [damage] [:div [:input {:type :radio :name :damage :value damage :checked isChecked} damage] [:br]]) damages))
+  
+(defn table-headers[]
+  [:tr [:th "Tribe"] [:th "Settlement"] [:th "Population"]])
 
 (defn index-page []
   (html5
@@ -34,9 +37,11 @@
       [:title "AMindBlowingWorld"]
       (include-js "/js/jquery-1.10.2.js")
       (include-js "/js/jquery-ui.js")
+      (include-js "/js/jquery.dataTables.min.js")
       (include-js "/js/external.js")
       (include-js "/js/app.js")
       (include-css "/css/dark-hive/jquery-ui.css")
+      (include-css "/css/jquery.dataTables.css")
       (include-css "/css/app.css")]
     [:body {:onload "initApp();"}
       [:div#appViewport
@@ -63,7 +68,10 @@
               [:input#login {:type "text"}]
               [:input#registerUser {:type "button" :value "Login and damage!"}]]
             [:br {:style "clear: right;"}]]
-          [:h3 "Tribes and villages - table"]
-          [:div#tableDiv]]
+          [:h3 "Tribes and settlements"]
+          [:div#tableDiv]
+            [:table#tribesAndSettlements {:class "display" :cellspacing "0" :width "100%"}
+              [:thead (table-headers)]
+              [:tfoot (table-headers)]]]
         [:div#notLoggedInDialog {:title "Please Login"} [:p "You must LogIn to be able to damage the world"]]]
     ]))

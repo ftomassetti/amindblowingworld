@@ -76,6 +76,7 @@ function initApp() {
     $("#accordion").accordion();
     $("#notLoggedInDialog").dialog({ autoOpen: false });
     $("#registerUser").click(registerUser);
+    $('#tribesAndSettlements').dataTable( { "ajax": '/tribes.txt' } );
 }
 
 function createMessagePopup(msgid,x,y,message)
