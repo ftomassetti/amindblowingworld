@@ -4,6 +4,21 @@ function log(msg) {
     }, 0);
 }
 
+function setSettlementPosition(element,x,y)
+{
+    var worldMap = document.getElementById("worldMap");
+    var baseX = worldMap.getBoundingClientRect().x;
+    var baseY = worldMap.getBoundingClientRect().y;
+
+    if (element.style)
+    {
+        element.style.left = (baseX+x-6)+'px';
+        element.style.top = (baseY+y-6)+'px';
+    } else {
+        element.css({"left":(baseX+x-6)+'px', "top":(baseY+y-6)+'px'})
+    }
+}
+
 function createSettlementIcon(settlementId,x,y,name)
 {
     if (!eval($("#ui-id-1").attr("aria-expanded")))
@@ -17,8 +32,9 @@ function createSettlementIcon(settlementId,x,y,name)
     var myLayer = document.createElement('div');
     myLayer.id = 'settlement_'+settlementId;
     myLayer.style.position = 'absolute';
-    myLayer.style.left = (baseX+x-6)+'px';
-    myLayer.style.top = (baseY+y-6)+'px';
+    //myLayer.style.left = (baseX+x-6)+'px';
+    //myLayer.style.top = (baseY+y-6)+'px';
+    setSettlementPosition(myLayer,x,y);
     myLayer.style.padding = '2px';
     myLayer.style.background = 'url(/img/village.png)';
     myLayer.style.margin = '0';
@@ -51,7 +67,8 @@ function startPeriodicMapUpdate(worldMap) {
                     //console.log("* Settlement " + settlement.pop + " = "+settlement.name+", pos "+settlement.pos.x+", id "+settlement.id);
                     var existingIcon = $("#settlement_"+settlement.id);
                     if (existingIcon.length) {
-                        //console.log("Icon found for "+settlement.id+" : "+existingIcon[0]);
+                        console.log("MOVING");
+                        setSettlementPosition(existingIcon,settlement.pos.x,settlement.pos.y);
                     } else {
                         //console.log("Icon not found for "+settlement.id);
                         createSettlementIcon(settlement.id, settlement.pos.x, settlement.pos.y, settlement.name);
@@ -196,3 +213,19 @@ function addNews(message) {
     }
   });
 }
+
+$(document).ready(function(){
+    $("#accordion").accordion({
+        beforeActivate: function( event, ui ) {
+            var hidingMap = eval($("#ui-id-1").attr("aria-expanded"));
+            $.each(Object.keys(global_displayedSettlements), function(i, settlementId){
+
+                if (hidingMap) {
+                    $("#settlement_"+settlementId).hide();
+                } else {
+                    $("#settlement_"+settlementId).show();
+                }
+            });
+        }
+    });
+});
