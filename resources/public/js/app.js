@@ -7,8 +7,8 @@ function log(msg) {
 function setSettlementPosition(element,x,y)
 {
     var worldMap = document.getElementById("worldMap");
-    var baseX = worldMap.getBoundingClientRect().x;
-    var baseY = worldMap.getBoundingClientRect().y;
+    var baseX = worldMap.getBoundingClientRect().left;
+    var baseY = worldMap.getBoundingClientRect().top;
 
     if (element.style)
     {
@@ -32,8 +32,8 @@ function showSettlementInfo(settlementId, x, y, name)
     }
 
     var worldMap = document.getElementById("worldMap");
-    var baseX = worldMap.getBoundingClientRect().x;
-    var baseY = worldMap.getBoundingClientRect().y;
+    var baseX = worldMap.getBoundingClientRect().left;
+    var baseY = worldMap.getBoundingClientRect().top;
 
     var myLayer = document.createElement('div');
     myLayer.id = 'settlement_info_'+settlementId;
@@ -64,8 +64,8 @@ function createSettlementIcon(settlementId,x,y,name)
         return;
     }
     var worldMap = document.getElementById("worldMap");
-    var baseX = worldMap.getBoundingClientRect().x;
-    var baseY = worldMap.getBoundingClientRect().y;
+    var baseX = worldMap.getBoundingClientRect().left;
+    var baseY = worldMap.getBoundingClientRect().top;
 
     var myLayer = document.createElement('div');
     myLayer.id = 'settlement_'+settlementId;
@@ -210,8 +210,8 @@ function createMessagePopup(msgid,x,y,message)
         return;
     }
     var worldMap = document.getElementById("worldMap");
-    var baseX = worldMap.getBoundingClientRect().x;
-    var baseY = worldMap.getBoundingClientRect().y;
+    var baseX = worldMap.getBoundingClientRect().left;
+    var baseY = worldMap.getBoundingClientRect().top;
 
     var myLayer = document.createElement('div');
     myLayer.id = 'event_'+msgid;
