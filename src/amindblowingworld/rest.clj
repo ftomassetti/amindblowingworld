@@ -32,16 +32,16 @@
   (json/write-str (total-pop)))
 
 (defn- tribe-info [tribe]
-  {:id (:id tribe) :name (.name tribe) :settlements (:settlements tribe)})
+  {:id (:id tribe) :name (:name tribe) :settlements (:settlements tribe)})
 
 (defn- settlement-info [s]
   {:id (:id s)
-   :name (.name s)
+   :name (:name s)
    :pos (:pos s)
    :tribe (:owner s)
    :pop (:pop s)
    :tribe-name (:name (get-tribe (:owner s)))
-   :biome (.name (get-biome (:pos s)))})
+   :biome (:name (get-biome (:pos s)))})
 
 (defn tribes-request []
   (json/write-str (map tribe-info (vals (:tribes @game)))))
@@ -67,9 +67,9 @@
   (let [ s (get-settlement settlement-id)
          desc (if (nil? s)
                 ""
-                (let [name  (.name s)
-                      tribe (.name (get-tribe (.owner s)))
-                      pop   (.pop s)]
-                  (str "Name: " name "<br/>Tribe: " tribe "<br/>Pop: " pop"<br/>ID: " (.id s))))]
+                (let [name  (:name s)
+                      tribe (:name (get-tribe (:owner s)))
+                      pop   (:pop s)]
+                  (str "Name: " name "<br/>Tribe: " tribe "<br/>Pop: " pop"<br/>ID: " (:id s))))]
     (println "DESC=" desc)
     (json/write-str desc)))

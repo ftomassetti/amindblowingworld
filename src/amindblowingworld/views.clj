@@ -17,16 +17,13 @@
 (import javax.imageio.ImageIO)
 
 (defn image-bytes [image format]
-  (let [baos (ByteArrayOutputStream.)
-        _ (ImageIO/write image format, baos )
-        _ (.flush baos)
-        bytes (.toByteArray baos)
-        _ (.close baos)]
-    bytes))
+  (with-open [baos (ByteArrayOutputStream.)]
+    (ImageIO/write image format baos)
+    (.flush baos)
+    (.toByteArray baos)))
 
 (defn response-png-image-from-bytes [bytes]
-  {
-    :status 200
+  { :status 200
     :headers {"Content-Type" "image/png"}
     :body (ByteArrayInputStream. bytes)
     })
@@ -44,11 +41,10 @@
 (defn- get-history-since [event-id]
   (if (nil? @events)
     [0 []]
-    [(.length @events) (if (>= event-id (.length @events))
+    [(count @events) (if (>= event-id (count @events))
                          []
                          (let [events-to-return (subvec @events event-id)]
-                           (if (> (.length events-to-return) 20) (take-last 20 events-to-return) events-to-return)))]))
+                           (if (> (count events-to-return) 20) (take-last 20 events-to-return) events-to-return)))]))
 
 (defn history-since [event-id]
   (json/write-str (get-history-since event-id)))
-

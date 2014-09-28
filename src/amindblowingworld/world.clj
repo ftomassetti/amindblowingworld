@@ -1,18 +1,17 @@
-(ns amindblowingworld.world)
-
-(import '(com.github.lands.World))
-(import '(com.github.lands.Biome))
+(ns amindblowingworld.world
+  [:import [com.github.lands World Biome PickleSerialization]])
 
 (defn load-world [filename]
-  (let [f (java.io.File. filename)]
-    (. com.github.lands.PickleSerialization loadWorld f)))
+  (let [f (clojure.java.io/as-file filename)]
+    (. PickleSerialization loadWorld f)))
 
 ;(defonce world (atom (load-world "worlds/seed_13038.world")))
 
-(defn biome-matrix [world]
-  (let [w (-> world .getDimension .getWidth)
-        h (-> world .getDimension .getHeight)
-        b (-> world .getBiome)]
+(defn biome-matrix [^World world]
+  (let [d (.getDimension world)
+        w (.getWidth d)
+        h (.getHeight d)
+        b (.getBiome world)]
     (for [y (range h)]
       (for [x (range w)]
         (.get b x y)))))

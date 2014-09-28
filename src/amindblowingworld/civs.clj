@@ -1,16 +1,11 @@
 (ns amindblowingworld.civs
   (:require [amindblowingworld.world :refer :all]
-            [amindblowingworld.history :refer :all]))
-
-(import '(com.github.lands.World))
-(import '(com.github.lands.Biome))
-
-(import java.io.ByteArrayOutputStream)
-(import java.io.ByteArrayInputStream)
-(import java.awt.image.BufferedImage)
-(import java.awt.RenderingHints)
-(import java.awt.Color)
-(import javax.imageio.ImageIO)
+            [amindblowingworld.history :refer :all])
+  (:import [com.github.lands World Biome]
+           [java.io ByteArrayOutputStream ByteArrayInputStream]
+           [java.awt Color RenderingHints]
+           [java.awt.image BufferedImage]
+           [javax.imageio ImageIO]))
 
 (def world (load-world "worlds/seed_13038.world"))
 
@@ -33,12 +28,12 @@
 
 (def world (load-world "worlds/seed_13038.world"))
 
-(defn get-world [] world)
+(defn ^World get-world [] world)
 
 (defn create-game []
   (Game. 1 {} {}))
 
-(def game  (atom (create-game)))
+(def game (atom (create-game)))
 
 (def ^:dynamic saved-biome-map nil)
 
@@ -55,12 +50,12 @@
 (defn get-tribe [id]
   (get-in @game [:tribes id]))
 
-(defn update-settlement [settlement]
-  (let [id (.id settlement)]
+(defn update-settlement [ settlement]
+  (let [id (:id settlement)]
     (swap! game assoc-in [:settlements id] settlement)))
 
 (defn update-tribe [tribe]
-  (let [id (.id tribe)]
+  (let [id (:id tribe)]
     (swap! game assoc-in [:tribes id] tribe)))
 
 (defn get-biome [pos]
@@ -95,7 +90,7 @@
 (defn mix-values [a b f]
   (+ (* f (float a)) (* (- 1.0 f) (float b))))
 
-(defn mix-colors [a b f]
+(defn mix-colors [^Color a ^Color b f]
   (let [red (int (mix-values (.getRed a) (.getRed b) f))
         green (int (mix-values (.getGreen a) (.getGreen b) f))
         blue (int (mix-values (.getBlue a) (.getBlue b) f))]
@@ -113,10 +108,10 @@
 ; --------------------------------------
 
 (defn settlement-at [pos]
-  (let [settlements (vals (.settlements @game))]
+  (let [settlements (vals (:settlements @game))]
     (reduce (fn [acc s]
-              (if (= pos (.pos s))
-                (.id s)
+              (if (= pos (:pos s))
+                (:id s)
                 acc)) nil settlements)))
 
 (defn free-cell? [pos]
@@ -148,10 +143,10 @@
   (let [settlements (settlements-around pos radius)]
     (doseq [s-id settlements]
       (let [ s (get-settlement s-id)
-             dead (int (* strength (.pop s)))
-             new-pop (- (.pop s) dead)]
+             dead (int (* strength (:pop s)))
+             new-pop (- (:pop s) dead)]
         (update-settlement-pop s-id new-pop)
-        (record-event (str dead " died in " (.name s) " because of " name) (.pos s))))
+        (record-event (str dead " died in " (:name s) " because of " name) (:pos s))))
     settlements))
 
 (defn random-pos []
@@ -191,15 +186,15 @@
         pos (> new-pop (:pop s))
         s (assoc s :pop new-pop)]
     (if pos
-      (record-event (str "Population of " (.name s) " growing to " (.pop s)) (.pos s))
-      (record-event (str "Population of " (.name s) " shrinking to " (.pop s)) (.pos s)))
+      (record-event (str "Population of " (:name s) " growing to " (:pop s)) (:pos s))
+      (record-event (str "Population of " (:name s) " shrinking to " (:pop s)) (:pos s)))
     (update-settlement s)
-    (when (= (.pop s) 0)
+    (when (= (:pop s) 0)
       ;(update-biome-map)
-      (record-event (str "Village " (.name s) " is now a ghost town") (.pos s)))))
+      (record-event (str "Village " (:name s) " is now a ghost town") (:pos s)))))
 
 (defn ghost-town? [settlement]
-  (= 0 (.pop settlement)))
+  (= 0 (:pop settlement)))
 
 (declare update-settlement-fun)
 
@@ -211,22 +206,22 @@
   (try
     (let [old-village   (get-settlement id-settlement)
         _               (assert (not (nil? id-settlement)) (str "Unable to find settlement " id-settlement " in game " @game))
-        tribe-id        (.owner old-village)
+        tribe-id        (:owner old-village)
         _               (assert (not (nil? tribe-id)) (str "Old village has no owner: " old-village))
         tribe           (get-tribe tribe-id)
         _               (assert (not (nil? tribe)) (str "No tribe found with id " tribe-id " in " @game))
-        language        (.language tribe)
-        new-village-name (.name language)
-        new-pos (free-random-land-near (.pos old-village) 10)
+        language        (:language tribe)
+        new-village-name (:name language)
+        new-pos (free-random-land-near (:pos old-village) 10)
         _               (assert (not (nil? new-pos)))
-        pop-new-village (rand-between (/ (.pop old-village) 5) (/ (.pop old-village) 3))
-        pop-old-village (- (.pop old-village) pop-new-village)
-        settlement (Settlement. (get-next-id) new-village-name pop-new-village (.id tribe) new-pos)
-        id-new-settlement (.id settlement)
-        new-settlements-list (conj (.settlements tribe) (.id settlement))
+        pop-new-village (rand-between (/ (:pop old-village) 5) (/ (:pop old-village) 3))
+        pop-old-village (- (:pop old-village) pop-new-village)
+        settlement (Settlement. (get-next-id) new-village-name pop-new-village (:id tribe) new-pos)
+        id-new-settlement (:id settlement)
+        new-settlements-list (conj (:settlements tribe) (:id settlement))
         _ (update-tribe (assoc tribe :settlements new-settlements-list))
-        _ (swap! game assoc-in [:settlements (.id settlement)] settlement)]
-      (record-event (str "Village " new-village-name " is born from " (.name old-village)) new-pos)
+        _ (swap! game assoc-in [:settlements (:id settlement)] settlement)]
+      (record-event (str "Village " new-village-name " is born from " (:name old-village)) new-pos)
       (update-settlement-pop id-settlement pop-old-village)
       (run-randomly (update-settlement-fun id-new-settlement) (* fastness 3) (* fastness 10)))
     (catch AssertionError e (println "assertion failed: " (.getMessage e)))))
@@ -235,14 +230,14 @@
   (let [s (get-settlement id-settlement)
         _ (assert (not (nil? s)) (str "Settlement with id " id-settlement " not found"))
         events [:growing :shrinking :stable]
-        pop (.pop s)
-        too-much-pop (> pop (population-supported (.pos s)))]
+        pop (:pop s)
+        too-much-pop (> pop (population-supported (:pos s)))]
     (if too-much-pop [:shrinking :stable :shrinking :stable :growing]
       [:growing :shrinking :stable])))
 
 (defn close-to-population-supported [s]
-  (let [ps (population-supported (.pos s))
-        pop (.pop s)]
+  (let [ps (population-supported (:pos s))
+        pop (:pop s)]
     (> pop (* 0.8 ps))))
 
 (defn update-settlement-fun [id-settlement]
@@ -253,14 +248,14 @@
       (when (and s (not (ghost-town? s)))
         (when (= event :growing)
           (let [perc (+ 1.0 (/ (rand) 5.0))
-                new-pop (int (* (.pop s) perc))]
+                new-pop (int (* (:pop s) perc))]
             (update-settlement-pop id-settlement new-pop)))
         (when (= event :shrinking)
           (let [perc (- 1.00 (/ (rand) 7.5))
-                new-pop (int (* (.pop s) perc))]
+                new-pop (int (* (:pop s) perc))]
             (update-settlement-pop id-settlement new-pop)))
         (let [s (get-settlement id-settlement)]
-          (when (and (< (.pop s) 50) (chance 0.35))
+          (when (and (< (:pop s) 50) (chance 0.35))
             (update-settlement-pop id-settlement 0))
           (when (and (close-to-population-supported s) (chance 0.15))
             (spawn-new-village-from id-settlement)
@@ -268,8 +263,8 @@
             ))))))
 
 (defn get-next-id []
-  (let [next-id (.next-id @game)
-        _ (swap! game assoc :next-id (inc next-id))]
+  (let [next-id (:next-id @game)]
+    (swap! game assoc :next-id (inc next-id))
     next-id))
 
 (defn create-tribe []
@@ -277,8 +272,8 @@
     (let [id-tribe        (get-next-id)
           id-settlement   (get-next-id)
           language        (generate-language)
-          name-tribe      (.name language)
-          name-settlement (.name language)
+          name-tribe      (:name language)
+          name-settlement (:name language)
           pos             (free-random-land)
           settlement      (Settlement. id-settlement name-settlement 100 id-tribe pos)
           tribe           (Tribe. id-tribe name-tribe language [id-settlement])
@@ -299,7 +294,7 @@
 ; --------------------------------------
 
 (defn total-pop []
-  (int (reduce + (map :pop (vals (.settlements @game))))))
+  (int (reduce + (map :pop (vals (:settlements @game))))))
 
 (defn pop-balancer []
   (let [pop (total-pop)]
@@ -327,5 +322,3 @@
 
 (defn init []
   (run-every-n-seconds pop-balancer 10))
-
-
