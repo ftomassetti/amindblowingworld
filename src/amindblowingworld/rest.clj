@@ -4,14 +4,29 @@
             [amindblowingworld.civs :refer :all]
             [clojure.data.json :as json]))
 
-(def users (atom []))
+(def users (atom ()))
 
-(defn add-user-request [name]
-  (swap! users conj name)
-  (json/write-str "OK"))
+(defn list-users []
+  (map :username @users))
+
+(defn get-user [name]
+  (first (filter #(= name (:username %)) @users)))
+
+(defn is-user?
+  ([name]
+     (is-user? @users name))
+  ([db name]
+     (some #(= name (:username %)) db)))
+
+(defn add-user-request [name pass]
+  (cond
+      (and (is-user? name) (= pass (-> name get-user :password))) (json/write-str "OK")
+      (and (is-user? name) (not (= pass (-> name get-user :password)))) (json/write-str "User is existing already and the password is wrong. Please choose another name or input the correct password")
+      :else (do (swap! users conj {:username name :password pass}) (json/write-str "OK"))
+      ))
 
 (defn users-request []
-  (json/write-str @users))
+  (json/write-str (list-users)))
 
 (defn total-pop-request []
   (json/write-str (total-pop)))
