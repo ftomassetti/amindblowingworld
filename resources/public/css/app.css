@@ -6,8 +6,11 @@ body {
 #world {
     width:512px;
 }
+
 #worldMap {
     width:512px;
+    height:512px;
+    margin-bottom:10px;
     border: 1px white solid;
     padding: 1px;
     background-color:black;

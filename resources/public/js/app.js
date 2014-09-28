@@ -7,8 +7,8 @@ function log(msg) {
 function setSettlementPosition(element,x,y)
 {
     var worldMap = document.getElementById("worldMap");
-    var baseX = worldMap.getBoundingClientRect().x;
-    var baseY = worldMap.getBoundingClientRect().y;
+    var baseX = worldMap.getBoundingClientRect().left;
+    var baseY = worldMap.getBoundingClientRect().top;
 
     if (element.style)
     {
@@ -32,8 +32,8 @@ function showSettlementInfo(settlementId, x, y, name)
     }
 
     var worldMap = document.getElementById("worldMap");
-    var baseX = worldMap.getBoundingClientRect().x;
-    var baseY = worldMap.getBoundingClientRect().y;
+    var baseX = worldMap.getBoundingClientRect().left;
+    var baseY = worldMap.getBoundingClientRect().top;
 
     var myLayer = document.createElement('div');
     myLayer.id = 'settlement_info_'+settlementId;
@@ -64,8 +64,8 @@ function createSettlementIcon(settlementId,x,y,name)
         return;
     }
     var worldMap = document.getElementById("worldMap");
-    var baseX = worldMap.getBoundingClientRect().x;
-    var baseY = worldMap.getBoundingClientRect().y;
+    var baseX = worldMap.getBoundingClientRect().left;
+    var baseY = worldMap.getBoundingClientRect().top;
 
     var myLayer = document.createElement('div');
     myLayer.id = 'settlement_'+settlementId;
@@ -151,9 +151,10 @@ function startPeriodicUsersCheck() {
     }, 6000);
 }
 
-var global_userName=""
+var global_userName = "";
+
 function isCurrentUserRegistered() {
-  return global_userName!=""
+  return global_userName!="";
 }
 
 function registerUser() {
@@ -176,7 +177,7 @@ function registerUser() {
       $("#passwrd").attr("disabled","disabled");
       $("#registerUser").remove();
     } else {
-      alert("User is not regitered. Username: " + userName + ", server response: " + data)
+      alert("User is not registered. Username: " + userName + ", server response: " + data);
     }
   });
 }
@@ -217,8 +218,8 @@ function createMessagePopup(msgid,x,y,message)
         return;
     }
     var worldMap = document.getElementById("worldMap");
-    var baseX = worldMap.getBoundingClientRect().x;
-    var baseY = worldMap.getBoundingClientRect().y;
+    var baseX = worldMap.getBoundingClientRect().left;
+    var baseY = worldMap.getBoundingClientRect().top;
 
     var myLayer = document.createElement('div');
     myLayer.id = 'event_'+msgid;
@@ -265,18 +266,40 @@ function addNews(message) {
   });
 }
 
+function updateTable()
+{
+  var tableId = '#tribesAndSettlements';
+  var urlData = '/rest/tribes-and-settlements';
+  $.getJSON(urlData, null, function( json ) {
+      table = $(tableId).dataTable();
+      oSettings = table.fnSettings();
+
+      table.fnClearTable(this);
+
+      console.log("JSON "+json.data+" LENGTH "+json.data.length);
+      for (var i=0; i<json.data.length; i++) {
+        table.oApi._fnAddData(oSettings, json.data[i]);
+      }
+
+      oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+      table.fnDraw();
+  });
+}
+
 $(document).ready(function(){
     $("#accordion").accordion({
         beforeActivate: function( event, ui ) {
             var hidingMap = eval($("#ui-id-1").attr("aria-expanded"));
             $.each(Object.keys(global_displayedSettlements), function(i, settlementId){
-
                 if (hidingMap) {
                     $("#settlement_"+settlementId).hide();
                 } else {
                     $("#settlement_"+settlementId).show();
                 }
             });
+            if (hidingMap) {
+                updateTable();
+            };
         }
     });
 
