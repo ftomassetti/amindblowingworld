@@ -7,4 +7,4 @@
 ; Return false if no villages are nearby
 (defn disaster-request [x y name]
   (let [pos {:x x :y y}]
-    (json/write-str (disaster pos (rand-between 30 60) name (rand)))))
+    (json/write-str (disaster pos (rand-between 70 120) name (rand)))))

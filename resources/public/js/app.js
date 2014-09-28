@@ -93,6 +93,10 @@ function createSettlementIcon(settlementId,x,y,name)
 
 var global_displayedSettlements = {};
 
+function shakeVillage(settlementId) {
+	$('#settlement_'+settlementId).effect('shake', { times:8, distance:5 }, 900);
+}
+
 function startPeriodicMapUpdate(worldMap) {
     /*setInterval(function() {
         worldMap.src = '/map.png?rand=' + Math.random();
@@ -176,11 +180,13 @@ function createDisaster(x, y) {
     return;
   }
   var damageName = $('input[name=damage]:checked', '#damageReasons').val()
-  $.get("/useractions/disaster/" + x + "/" + y + "/" + damageName, function( data ) {
-    if (data == "true") {
-      alert("Disaster close to vilage - damage caused");
+  $.getJSON("/useractions/disaster/" + x + "/" + y + "/" + damageName, function( data ) {
+    if (data.length) {
+        $.each(data, function(i,settlementId){
+            shakeVillage(settlementId);
+        });
     } else {
-      alert("Disaster too far from any village - no damage")
+      //alert("Disaster too far from any village - no damage")
     }
   });
 }

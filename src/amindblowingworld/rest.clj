@@ -55,6 +55,6 @@
                 (let [name  (.name s)
                       tribe (.name (get-tribe (.owner s)))
                       pop   (.pop s)]
-                  (str "Name: " name "<br/>Tribe: " tribe "<br/>Pop: " pop)))]
+                  (str "Name: " name "<br/>Tribe: " tribe "<br/>Pop: " pop"<br/>ID: " (.id s))))]
     (println "DESC=" desc)
     (json/write-str desc)))
