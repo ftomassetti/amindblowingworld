@@ -69,9 +69,9 @@
               [:input#registerUser {:type "button" :value "Login and damage!"}]]
             [:br {:style "clear: right;"}]]
           [:h3 "Tribes and settlements"]
-          [:div#tableDiv]
+          [:div#tableDiv
             [:table#tribesAndSettlements {:class "display" :cellspacing "0" :width "100%"}
               [:thead (table-headers)]
-              [:tfoot (table-headers)]]]
+              [:tfoot (table-headers)]]]]
         [:div#notLoggedInDialog {:title "Please Login"} [:p "You must LogIn to be able to damage the world"]]]
     ]))
