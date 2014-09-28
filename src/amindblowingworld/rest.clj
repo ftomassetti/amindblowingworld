@@ -39,3 +39,11 @@
 
 (defn settlements-request []
   (json/write-str (map settlement-info (vals (:settlements @game)))))
+
+(defn- tribe-and-settlement-to-data-list [tas]
+  [(:id tas) (:name tas) (:tribe-name tas) (:pop tas) (:biome tas)])
+(defn- tribes-and-settlements [data]
+  {:data (map tribe-and-settlement-to-data-list data)})
+
+(defn tribes-and-settlements-request []
+  (json/write-str (tribes-and-settlements (map settlement-info (vals (:settlements @game))))))

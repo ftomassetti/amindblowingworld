@@ -147,6 +147,7 @@
   (GET "/rest/users"           []     (users-request))
   (GET "/rest/totalpop" [] (total-pop-request))
   (GET "/rest/settlements" [] (settlements-request))
+  (GET "/rest/tribes-and-settlements" [] (tribes-and-settlements-request))
   (GET "/rest/tribes"      [] (tribes-request))
   (GET ["/rest/tribe/:id/settlements", :id #"[0-9]+"]   [id] (tribe-settlements-request (read-string id)))
   (GET ["/useractions/disaster/:x/:y/:name", :x #"[0-9]+", :y #"[0-9]+"] [x y name] (disaster-request (read-string x) (read-string y) name))

@@ -29,7 +29,7 @@
   (map (fn [damage] [:div [:input {:type :radio :name :damage :value damage :checked isChecked} damage] [:br]]) damages))
   
 (defn table-headers[]
-  [:tr [:th "Tribe"] [:th "Settlement"] [:th "Population"]])
+  [:tr [:th "ID"] [:th "Settlement"] [:th "Tribe"] [:th "Population"] [:th "Biome"]])
 
 (defn index-page []
   (html5
