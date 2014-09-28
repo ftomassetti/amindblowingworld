@@ -127,7 +127,7 @@
              biome (.get b (:x pos) (:y pos))]
         (not (= (.name biome) "OCEAN"))))))
 
-(def fastness 100)
+(def fastness 10000)
 
 (defn settlements-around [pos radius]
   (let [cx (:x pos)
