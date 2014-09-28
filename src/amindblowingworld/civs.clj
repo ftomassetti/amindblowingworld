@@ -299,7 +299,7 @@
 ; --------------------------------------
 
 (defn total-pop []
-  (reduce + (map :pop (vals (.settlements @game)))))
+  (int (reduce + (map :pop (vals (.settlements @game))))))
 
 (defn pop-balancer []
   (let [pop (total-pop)]
