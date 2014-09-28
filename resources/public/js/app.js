@@ -48,7 +48,7 @@ function startPeriodicMapUpdate(worldMap) {
             $.each(data, function( index, settlement ) {
                 if (eval(settlement.pop) > 0)
                 {
-                    console.log("* Settlement " + settlement.pop + " = "+settlement.name+", pos "+settlement.pos.x+", id "+settlement.id);
+                    //console.log("* Settlement " + settlement.pop + " = "+settlement.name+", pos "+settlement.pos.x+", id "+settlement.id);
                     var existingIcon = $("#settlement_"+settlement.id);
                     if (existingIcon.length) {
                         //console.log("Icon found for "+settlement.id+" : "+existingIcon[0]);
@@ -63,7 +63,7 @@ function startPeriodicMapUpdate(worldMap) {
                 }
             });
             // remove dead villages
-            console.log("remaining idsToDelete "+idsToDelete);
+            //console.log("remaining idsToDelete "+idsToDelete);
             $.each(idsToDelete, function(i, idToDelete) {
                 $("#settlement_"+idsToDelete).remove();
             });
