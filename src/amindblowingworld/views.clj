@@ -31,15 +31,15 @@
     :body (ByteArrayInputStream. bytes)
     })
 
-(defn biome-map []
-  (when (nil? saved-biome-map)
-    (update-biome-map))
-  saved-biome-map)
+;(defn biome-map []
+;  (when (nil? saved-biome-map)
+;    (update-biome-map))
+;  saved-biome-map)
 
-(defn response-biome-map []
-  (let [bm (biome-map)
-        bytes (image-bytes bm "png")]
-    (response-png-image-from-bytes bytes)))
+;(defn response-biome-map []
+;  (let [bm (biome-map)
+;        bytes (image-bytes bm "png")]
+;    (response-png-image-from-bytes bytes)))
 
 (defn- get-history-since [event-id]
   (if (nil? @events)

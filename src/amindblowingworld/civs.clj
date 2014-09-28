@@ -107,44 +107,6 @@
 
 (def adapt-color-to-elevation (memoize adapt-color-to-elevation-real))
 
-(defn calc-biome-map [world]
-  (let [ w (-> world .getDimension .getWidth)
-         h (-> world .getDimension .getHeight)
-         scale-factor 1
-         img (BufferedImage. (* scale-factor w) (* scale-factor h) (BufferedImage/TYPE_INT_ARGB))
-         g (.createGraphics img)
-         b (-> world .getBiome)]
-    (doseq [y (range h)]
-      (doseq [x (range w)]
-        (if (settlement-at {:x x :y y})
-          (.setColor g (Color. 255 0 0))
-          (let [pos {:x x :y y}
-                biome (.get b x y)
-            biome-color (case (.name biome)
-              "OCEAN"        (Color. 0 0 255)
-              "ICELAND"      (Color. 255 225 225)
-              "TUNDRA"       (Color. 141 227 218)
-              "ALPINE"       (Color. 141 227 218)
-              "GLACIER"      (Color. 255 225 225)
-              "GRASSLAND"    (Color. 80 173 88)
-              "ROCK_DESERT"  (Color. 105 120 59)
-              "SAND_DESERT"  (Color. 205 227 141)
-              "FOREST"       (Color. 59 120 64)
-              "SAVANNA"      (Color. 171 161 27)
-              "JUNGLE"       (Color. 5 227 34)
-              (Color. 255 0 0))]
-            (.setColor g (adapt-color-to-elevation biome-color x y))))
-        (let [pixel-x (* x scale-factor)
-              pixel-y (* y scale-factor)]
-          (.fillRect g pixel-x pixel-y scale-factor scale-factor))))
-    (.dispose g)
-    img))
-
-(defn update-biome-map []
-  (time (let [img (calc-biome-map (get-world))]
-    (def saved-biome-map img))))
-
-;(defn update-biome-map [] )
 
 ; --------------------------------------
 ; Tribe functions
@@ -233,7 +195,7 @@
       (record-event (str "Population of " (.name s) " shrinking to " (.pop s)) (.pos s)))
     (update-settlement s)
     (when (= (.pop s) 0)
-      (update-biome-map)
+      ;(update-biome-map)
       (record-event (str "Village " (.name s) " is now a ghost town") (.pos s)))))
 
 (defn ghost-town? [settlement]
@@ -302,7 +264,7 @@
             (update-settlement-pop id-settlement 0))
           (when (and (close-to-population-supported s) (chance 0.15))
             (spawn-new-village-from id-settlement)
-            (update-biome-map)
+            ;(update-biome-map)
             ))))))
 
 (defn get-next-id []
@@ -328,7 +290,8 @@
         (run-randomly (update-settlement-fun id-settlement) (* fastness 3) (* fastness 10))
         (record-event (str "Creating tribe " name-tribe) pos)
         (record-event (str "Creating village " name-settlement) pos)
-        (update-biome-map))
+        ;(update-biome-map)
+        )
     (catch AssertionError e (println "Create tribe: " (.getMessage e)))))
 
 ; --------------------------------------
