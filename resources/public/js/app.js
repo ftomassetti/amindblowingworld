@@ -53,7 +53,7 @@ function showSettlementInfo(settlementId, x, y, name)
         myLayer.innerHTML = data;
     });
 
-    setTimeout(function() { $('#settlement_info_'+settlementId).fadeOut("slow"); }, 3500);
+    //setTimeout(function() { $('#settlement_info_'+settlementId).fadeOut("slow"); }, 3500);
     //global_displayedSettlements[settlementId] = myLayer;
 }
 
@@ -81,6 +81,7 @@ function createSettlementIcon(settlementId,x,y,name)
     myLayer.style.height = '12px';
     myLayer.onmousedown = function (event) { external_getCoordinates(worldMap, event, createDisaster) };
     myLayer.onmouseover = function (event) { showSettlementInfo(settlementId, x, y, name); };
+    myLayer.onmouseout = function (event) { $('#settlement_info_'+settlementId).fadeOut("slow"); };
     //myLayer.innerHTML = "Village "+name;
     document.body.appendChild(myLayer);
 
