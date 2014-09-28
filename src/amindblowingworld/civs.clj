@@ -204,10 +204,10 @@
       rp
       (free-random-land))))
 
-(defn free-random-land-near [center]
+(defn free-random-land-near [center distance]
   (let [cx (:x center)
         cy (:y center)
-        all-cells-around (for [dx (range -5 5) dy (range -5 5)]
+        all-cells-around (for [dx (range (* -1 distance) distance) dy (range (* -1 distance) distance)]
                             {:x (+ cx dx) :y (+ cy dy)})
         land-cells-around (filter land? all-cells-around)
         free-land-cells-around (filter free-cell? land-cells-around)]
@@ -255,7 +255,7 @@
         _               (assert (not (nil? tribe)) (str "No tribe found with id " tribe-id " in " @game))
         language        (.language tribe)
         new-village-name (.name language)
-        new-pos (free-random-land-near (.pos old-village))
+        new-pos (free-random-land-near (.pos old-village) 10)
         _               (assert (not (nil? new-pos)))
         pop-new-village (rand-between (/ (.pop old-village) 5) (/ (.pop old-village) 3))
         pop-old-village (- (.pop old-village) pop-new-village)

@@ -53,7 +53,7 @@
           [:div#appDiv
             [:div#world.column
               [:h3 "World Map"]
-              [:img#worldMap {:src "/map.png"}]]
+              [:img#worldMap {:src "/img/ancient.png"}]]
             [:div#menu.column
               [:h3 "Landscapes"]
               [:table (landscape-colors-legend)]

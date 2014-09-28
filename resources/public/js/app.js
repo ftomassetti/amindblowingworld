@@ -4,11 +4,73 @@ function log(msg) {
     }, 0);
 }
 
-function startPeriodicMapUpdate(worldMap) {
-    setInterval(function() {
-        worldMap.src = '/map.png?rand=' + Math.random();
-    }, 18000);
+function createSettlementIcon(settlementId,x,y,name)
+{
+    if (!eval($("#ui-id-1").attr("aria-expanded")))
+    {
+        return;
+    }
+    var worldMap = document.getElementById("worldMap");
+    var baseX = worldMap.getBoundingClientRect().x;
+    var baseY = worldMap.getBoundingClientRect().y;
+
+    var myLayer = document.createElement('div');
+    myLayer.id = 'settlement_'+settlementId;
+    myLayer.style.position = 'absolute';
+    myLayer.style.left = (baseX+x-6)+'px';
+    myLayer.style.top = (baseY+y-6)+'px';
+    myLayer.style.padding = '2px';
+    myLayer.style.background = 'url(/img/village.png)';
+    myLayer.style.margin = '0';
+    myLayer.style.padding = '0';
+    myLayer.style.width = '12px';
+    myLayer.style.height = '12px';
+    myLayer.onmousedown = function (event) { external_getCoordinates(worldMap, event, createDisaster) };
+    //myLayer.innerHTML = "Village "+name;
+    document.body.appendChild(myLayer);
+
+    global_displayedSettlements[settlementId] = myLayer;
+
+    //myLayer.style.zIndex = '1000';
+    //worldMap.appendChild(myLayer);
 }
+
+var global_displayedSettlements = {};
+
+function startPeriodicMapUpdate(worldMap) {
+    /*setInterval(function() {
+        worldMap.src = '/map.png?rand=' + Math.random();
+    }, 18000);*/
+    setInterval(function() {
+        $.getJSON("/rest/settlements", function(data){
+            //var new_displayedSettlements = {};
+            var idsToDelete = Object.keys(global_displayedSettlements);
+            $.each(data, function( index, settlement ) {
+                if (eval(settlement.pop) > 0)
+                {
+                    console.log("* Settlement " + settlement.pop + " = "+settlement.name+", pos "+settlement.pos.x+", id "+settlement.id);
+                    var existingIcon = $("#settlement_"+settlement.id);
+                    if (existingIcon.length) {
+                        //console.log("Icon found for "+settlement.id+" : "+existingIcon[0]);
+                    } else {
+                        //console.log("Icon not found for "+settlement.id);
+                        createSettlementIcon(settlement.id, settlement.pos.x, settlement.pos.y, settlement.name);
+                    }
+                    var indexToRemove = idsToDelete.indexOf(settlement.id.toString());
+                    if (indexToRemove > -1){
+                        idsToDelete.splice(indexToRemove,1);
+                    }
+                }
+            });
+            // remove dead villages
+            console.log("remaining idsToDelete "+idsToDelete);
+            $.each(idsToDelete, function(i, idToDelete) {
+                $("#settlement_"+idsToDelete).remove();
+            });
+        });
+    }, 3000);
+}
+
 function startPeriodicNewsUpdate() {
     setInterval(function() {
         addNews("n"+Math.random());
@@ -58,6 +120,7 @@ function createDisaster(x, y) {
     return;
   }
   var damageName = $('input[name=damage]:checked', '#damageReasons').val()
+  console.log("Disaster in "+x+" "+y);
   $.get("/useractions/disaster/" + x + "/" + y + "/" + damageName, function( data ) {
     if (data == "true") {
       alert("Disaster close to vilage - damage caused");
@@ -92,15 +155,15 @@ function createMessagePopup(msgid,x,y,message)
     var myLayer = document.createElement('div');
     myLayer.id = 'event_'+msgid;
     myLayer.style.position = 'absolute';
-    myLayer.style.left = (baseX+x)+'px';
-    myLayer.style.top = (baseY+y)+'px';
-    myLayer.style.padding = '2px';
+    myLayer.style.left = (baseX+x-55)+'px';
+    myLayer.style.top = (baseY+y+15)+'px';
+    myLayer.style.padding = '1px';
     myLayer.style.border = '1px black solid';
     myLayer.style.background = '#ffffff';
     myLayer.innerHTML = message;
     document.body.appendChild(myLayer);
 
-    console.log('Delete '+"#event_"+msgid);
+    //console.log('Delete '+"#event_"+msgid);
     setTimeout(function() { $("#event_"+msgid).fadeOut("slow"); }, 1500);
 }
 
