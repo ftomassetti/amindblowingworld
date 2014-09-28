@@ -66,3 +66,13 @@ tr.even {
 #worldpop {
     margin-top: 20px;
 }
+
+.longText {
+    margin:auto;
+    padding:20px 120px 20px 120px;
+    font-family: Optima, Segoe, "Segoe UI", Candara, Calibri, Arial, sans-serif;
+    font-size: 15px;
+    font-weight: normal;
+    line-height: 130%;
+    width:550px;
+}

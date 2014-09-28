@@ -2,6 +2,7 @@
   (:require
     [hiccup
       [page :refer [html5]]
+      [element :refer [link-to]]
       [page :refer [include-js include-css]]]))
 
 (def landscape-colors [["Settlement" 255 0 0]
@@ -70,12 +71,35 @@
               [:input#login {:type "text"}]
               [:input#registerUser {:type "button" :value "Login and damage!"}]
               [:div#worldpop
-                [:span.worldpopLabel "Total population: "] [:span.worldpopValue "0"]]]
+                [:span.worldpopLabel "Total population: "] [:span.worldpopValue "0"]]
+              [:div#notLoggedInDialog {:title "Please Login"} [:p "You must LogIn to be able to damage the world"]]]
             [:br {:style "clear: right;"}]]
           [:h3 "Tribes and settlements"]
           [:div#tableDiv
             [:table#tribesAndSettlements {:class "display" :cellspacing "0" :width "100%"}
               [:thead (table-headers)]
-              [:tfoot (table-headers)]]]]
-        [:div#notLoggedInDialog {:title "Please Login"} [:p "You must LogIn to be able to damage the world"]]]
-    ]))
+              [:tfoot (table-headers)]]]
+          [:h3 "About AMindBlowingWorld"]
+          [:div#aboutDiv
+           [:div.longText
+           [:p "This application was built while paricipating in the "
+            (link-to "http://clojurecup.com" "ClojureCup 2014") "."]
+           [:p "While growing up we were fascinated by game like "
+            (link-to "http://en.wikipedia.org/wiki/Populous" "Populous")
+            ". As children we encountered these first examples of simulating civilizations evolutions in computer games.
+               They were heroic attempts done in the poor hardware available at that time.
+               This is a small tribute to the kind of creation which captured our fantasy, a long time ago."]
+           [:p "The game is settled in a content generated world. We used "
+            (link-to "http://github.com/ftomassetti/lands" "Lands") " to produce that world.
+            On top of it we simulated the evolution of different tribes. These are a few characteristics of that simulation:"]
+           [:ul
+            [:li "Each tribe can own many villages, they spawn in the same area"]
+            [:li "Each tribe has its own language: you will notice that the name of the tribe and the name of its villages sound similar"]
+            [:li "The size of villages depends on the environment (e.g., villages tend to grow bigger in Forest w.r.t. to sand desert)."]]
+            [:p "While these elements are not very evident in the game we like to think they contribute a bit to the atmosphere of the game."]
+           [:p "In this game the player has only the possibility to destroy, but destruction plays a fundamental role in the mysterious circle of life..."]
+           [:p "Finally, you will notice that two disasters have rather peculiar names. A member of our time comes
+                from Ukraine and we want to use this occasion to share our hope for peace in Ukraine."]
+           [:p "Maybe we could invite Putin to play this game and cause destruction here, leaving alone real people."]
+           ]]
+        ]]]))
