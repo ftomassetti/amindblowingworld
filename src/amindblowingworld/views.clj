@@ -44,7 +44,10 @@
 (defn- get-history-since [event-id]
   (if (nil? @events)
     [0 []]
-    [(.length @events) (if (>= event-id (.length @events)) [] (subvec @events event-id))]))
+    [(.length @events) (if (>= event-id (.length @events))
+                         []
+                         (let [events-to-return (subvec @events event-id)]
+                           (if (> (.length events) 20) (take-last 20 events) events)))]))
 
 (defn history-since [event-id]
   (json/write-str (get-history-since event-id)))

@@ -20,7 +20,13 @@
   {:id (:id tribe) :name (.name tribe) :settlements (:settlements tribe)})
 
 (defn- settlement-info [s]
-  {:id (:id s) :name (.name s) :pos (:pos s) :tribe (:owner s) :pop (:pop s)})
+  {:id (:id s)
+   :name (.name s)
+   :pos (:pos s)
+   :tribe (:owner s)
+   :pop (:pop s)
+   :tribe-name (:name (get-tribe (:owner s)))
+   :biome (.name (get-biome (:pos s)))})
 
 (defn tribes-request []
   (json/write-str (map tribe-info (vals (:tribes @game)))))

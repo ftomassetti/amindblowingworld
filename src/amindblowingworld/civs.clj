@@ -63,6 +63,13 @@
   (let [id (.id tribe)]
     (swap! game assoc-in [:tribes id] tribe)))
 
+(defn get-biome [pos]
+  (let [x (:x pos)
+        y (:y pos)
+        b (-> (get-world) .getBiome)
+        biome (.get b x y)]
+    biome))
+
 (defn population-supported [pos]
   (let [x (:x pos)
         y (:y pos)
