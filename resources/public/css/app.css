@@ -8,6 +8,9 @@ body {
 }
 #worldMap {
     width:512px;
+    border: 1px white solid;
+    padding: 1px;
+    background-color:black;
 }
 
 .column {
