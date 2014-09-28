@@ -31,6 +31,7 @@ function initApp() {
     worldMap.onmousedown = function (event) { external_getCoordinates(worldMap, event, createDisaster) };
     startPeriodicMapUpdate(worldMap);
     startPeriodicNewsUpdate();
+    $( "#accordion" ).accordion();
 }
 
 var lastNewsNumber = 0;
