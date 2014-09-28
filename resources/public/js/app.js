@@ -81,7 +81,7 @@ function createSettlementIcon(settlementId,x,y,name)
     myLayer.style.height = '12px';
     myLayer.onmousedown = function (event) { external_getCoordinates(worldMap, event, createDisaster) };
     myLayer.onmouseover = function (event) { showSettlementInfo(settlementId, x, y, name); };
-    myLayer.onmouseout = function (event) { $('#settlement_info_'+settlementId).fadeOut("slow"); };
+    myLayer.onmouseout = function (event) { $('#settlement_info_'+settlementId).fadeOut(300, function() { $(this).remove();}); };
     //myLayer.innerHTML = "Village "+name;
     document.body.appendChild(myLayer);
 
@@ -225,7 +225,7 @@ function createMessagePopup(msgid,x,y,message)
     document.body.appendChild(myLayer);
 
     //console.log('Delete '+"#event_"+msgid);
-    setTimeout(function() { $("#event_"+msgid).fadeOut("slow"); }, 1500);
+    setTimeout(function() { $("#event_"+msgid).fadeOut(300, function() { $(this).remove();}); }, 1500);
 }
 
 
