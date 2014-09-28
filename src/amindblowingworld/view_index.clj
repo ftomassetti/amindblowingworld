@@ -39,23 +39,24 @@
       (include-css "/css/dark-hive/jquery-ui.css")
       (include-css "/css/app.css")]
     [:body {:onload "initApp();"}
-      [:h1 "AMindBlowingWorld"]
-      [:div#accordion
-        [:h3 "Map and updates"]
-        [:div#appDiv
-          [:div#world.column
-            [:h3 "World Map"]
-            [:img#worldMap {:src "/map.png"}]]
-          [:div#menu.column
-            [:h3 "Landscapes"]
-            [:table (landscape-colors-legend)]
-            [:h3 "Make damage!"]
-            [:form#damageReasons (damage-reasons ["Vulcano"] true) (damage-reasons ["Earthquake" "Hunger" "Tsunami" "Tornado" "Meteor" "Russian invasion" "Crazy Putin"] false)]]
-          [:div#news.column
-            [:h3 "News"]
-            [:select#newsList {:size 30}
-              [:option {:value "v0" :selected "true"} "World created"]]]
-          [:br {:style "clear: right;"}]]
-        [:h3 "Tribes and villages - table"]
-        [:div#tableDiv]]
+      [:div#appViewport
+        [:h1 "AMindBlowingWorld"]
+        [:div#accordion
+          [:h3 "Map and updates"]
+          [:div#appDiv
+            [:div#world.column
+              [:h3 "World Map"]
+              [:img#worldMap {:src "/map.png"}]]
+            [:div#menu.column
+              [:h3 "Landscapes"]
+              [:table (landscape-colors-legend)]
+              [:h3 "Make damage!"]
+              [:form#damageReasons (damage-reasons ["Vulcano"] true) (damage-reasons ["Earthquake" "Hunger" "Tsunami" "Tornado" "Meteor" "Russian invasion" "Crazy Putin"] false)]]
+            [:div#news.column
+              [:h3 "News"]
+              [:select#newsList {:size 30}
+                [:option {:value "v0" :selected "true"} "World created"]]]
+            [:br {:style "clear: right;"}]]
+          [:h3 "Tribes and villages - table"]
+          [:div#tableDiv]]]
     ]))

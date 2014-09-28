@@ -14,3 +14,9 @@ body {
     float:left;
     width:300px;
 }
+
+#appViewport {
+    width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
