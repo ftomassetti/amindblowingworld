@@ -20,6 +20,24 @@ function isCurrentUserRegistered() {
   return global_userName!=""
 }
 
+function registerUser() {
+  var userName = $("#login").val().trim();
+  if (userName == "") {
+    alert("Username is empty!")
+    return;
+  }
+  $.get("/rest/add-user/" + userName, function(data) {
+    if (data.toString().indexOf("OK")>-1) {
+      global_userName = userName;
+      $("#login").val("Your username: " + userName);
+      $("#login").attr("disabled","disabled");
+      $("#registerUser").remove();
+    } else {
+      alert("User is not regitered. Username: " + userName + ", server response: " + data)
+    }
+  });
+}
+
 function createDisaster(x, y) {
   if (!isCurrentUserRegistered()) {
     $("#notLoggedInDialog").dialog("open");
@@ -42,6 +60,7 @@ function initApp() {
     startPeriodicNewsUpdate();
     $("#accordion").accordion();
     $("#notLoggedInDialog").dialog({ autoOpen: false });
+    $("#registerUser").click(registerUser);
 }
 
 var global_lastNewsNumber = 0;
