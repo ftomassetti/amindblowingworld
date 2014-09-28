@@ -276,7 +276,6 @@ function updateTable()
 
       table.fnClearTable(this);
 
-      console.log("JSON "+json.data+" LENGTH "+json.data.length);
       for (var i=0; i<json.data.length; i++) {
         table.oApi._fnAddData(oSettings, json.data[i]);
       }
@@ -289,15 +288,18 @@ function updateTable()
 $(document).ready(function(){
     $("#accordion").accordion({
         beforeActivate: function( event, ui ) {
-            var hidingMap = eval($("#ui-id-1").attr("aria-expanded"));
+            var whichId = event.originalEvent.target.id;
+            var hidingMap =  ($("#ui-id-1").attr("aria-expanded")=="true") && (whichId!="ui-id-1");
+            var showingMap = ($("#ui-id-1").attr("aria-expanded")=="false") && (whichId=="ui-id-1");
+            var showingTable = ($("#ui-id-2").attr("aria-expanded")=="false") && (whichId=="ui-id-2");
             $.each(Object.keys(global_displayedSettlements), function(i, settlementId){
                 if (hidingMap) {
                     $("#settlement_"+settlementId).hide();
-                } else {
+                } else if (showingMap){
                     $("#settlement_"+settlementId).show();
                 }
             });
-            if (hidingMap) {
+            if (showingTable) {
                 updateTable();
             };
         }
