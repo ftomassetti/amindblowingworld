@@ -1,5 +1,5 @@
 body {
-    font-family: "Trebuchet MS", "Helvetica", "Arial",  "Verdana", "sans-serif";
+    font-family: "Calisto MT", "Bookman Old Style", Bookman, "Goudy Old Style", Garamond, "Hoefler Text", "Bitstream Charter", Georgia, serif;
     font-size: 62.5%;
 }
 
@@ -28,15 +28,25 @@ body {
     margin-right: auto;
 }
 
+#header {
+    text-align:center;
+}
+
 h1 {
-    display: inline-block;
-    margin-right:20px;
+    /*display: inline-block;
+    margin-right:20px;*/
+    margin: 7px 0 10px 0;
+    text-align:center;
+    font-family: "Calisto MT", "Bookman Old Style", Bookman, "Goudy Old Style", Garamond, "Hoefler Text", "Bitstream Charter", Georgia, serif;
 }
 
 h2 {
-    display: inline-block;
+    /*display: inline-block;*/
+    margin: 0 0 10px 0;
     font-style: italic;
     font-weight: lighter;
+    text-align:center;
+    font-family: "Calisto MT", "Bookman Old Style", Bookman, "Goudy Old Style", Garamond, "Hoefler Text", "Bitstream Charter", Georgia, serif;
 }
 
 tr.odd {

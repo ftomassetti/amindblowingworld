@@ -45,8 +45,9 @@
       (include-css "/css/app.css")]
     [:body {:onload "initApp();"}
       [:div#appViewport
-        [:h1 "A-Mind-Blowing-World"]
-        [:h2 "The miracle of life, civilizations rising and... the possibility to destroy everything one-click away!"]
+        [:div#header
+          [:h1 "A-Mind-Blowing-World"]
+          [:h2 "The miracle of life, civilizations rising and... the possibility to destroy everything one-click away!"]]
         [:div#accordion
           [:h3 "Map and updates"]
           [:div#appDiv
