@@ -224,7 +224,8 @@
     ))
 
 (defn update-settlement-pop [id-settlement new-pop]
-  (let [s (get-settlement id-settlement)
+  (let [new-pop (int new-pop)
+        s (get-settlement id-settlement)
         pos (> new-pop (:pop s))
         s (assoc s :pop new-pop)]
     (if pos
