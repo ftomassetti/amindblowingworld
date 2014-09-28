@@ -134,13 +134,13 @@
     ]))
 
 (defroutes main-routes
-  (GET "/" request
-       (render-login-page request))
-  (GET "/authenticated" request
-       ;;(friend/authorize #{::user} (render-authenticated-page request))
-       (render-authenticated-page request)
-       )
-  (GET "/world" [] (index-page))
+;auth;  (GET "/" request
+;auth;       (render-login-page request))
+;auth;  (GET "/authenticated" request
+;auth;       ;;(friend/authorize #{::user} (render-authenticated-page request))
+;auth;      (render-authenticated-page request)
+;auth;       )
+  (GET "/" [] (index-page))
   (GET "/map.png" [] (response-biome-map))
   (GET ["/history/since/:event-id", :event-id #"[0-9]+"] [event-id] (history-since (read-string event-id)))
   (GET "/rest/add-user/:name"  [name] (add-user-request name))
@@ -150,7 +150,7 @@
   (GET "/rest/tribes"      [] (tribes-request))
   (GET ["/rest/tribe/:id/settlements", :id #"[0-9]+"]   [id] (tribe-settlements-request (read-string id)))
   (GET ["/useractions/disaster/:x/:y/:name", :x #"[0-9]+", :y #"[0-9]+"] [x y name] (disaster-request (read-string x) (read-string y) name))
-  (friend/logout (ANY "/logout" request (ring.util.response/redirect "/")))
+;auth;  (friend/logout (ANY "/logout" request (ring.util.response/redirect "/")))
   (route/resources "/")
   (route/not-found "Page not found"))
 
