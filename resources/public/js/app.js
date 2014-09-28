@@ -261,36 +261,22 @@ function addNews(message) {
 
 function updateTable()
 {
-    $.getJSON('/rest/tribes-and-settlements', function(jsonData) {
-        var newData = {};
-        $.each(jsonData, function(i,myData){
-            $.each(myData, function(i,rowData){
-                var settlementId = rowData[0];
-                console.log(" fromServer * ["+settlementId+"] "+rowData);
-                newData[settlementId] = rowData;
-            });
-            //$('#tribesAndSettlements').DataTable().row(settlemendId).data(rowData)
-        });
-        var dataInTable = $('#tribesAndSettlements').DataTable().data();
+  var tableId = '#tribesAndSettlements';
+  var urlData = '/rest/tribes-and-settlements';
+  $.getJSON(urlData, null, function( json ) {
+      table = $(tableId).dataTable();
+      oSettings = table.fnSettings();
 
-        $.each(dataInTable, function(i,rowData){
-            var settlementId = rowData[0];
-            console.log(" inTable * ["+settlementId+"] "+rowData);
-            if (newData[settlementId] && newData[settlementId][3]>0) {
-                console.log("   to be updated from "+rowData+" to "+newData[settlementId][3]);
-            } else {
-                console.log("   removing "+i+" "+rowData+" POP "+newData[settlementId][3]);
-                //var dataInTable = $('#tribesAndSettlements').DataTable().row($('tr')[i]).remove();
-            }
-            newData[settlementId] = undefined;
-        });
-        $.each(newData, function(i,rowData){
-            if (rowData) {
-                console.log("ROW TO BE ADDED "+rowData);
-            }
-        });
-        var dataInTable = $('#tribesAndSettlements').DataTable().draw();
-    });
+      table.fnClearTable(this);
+
+      console.log("JSON "+json.data+" LENGTH "+json.data.length);
+      for (var i=0; i<json.data.length; i++) {
+        table.oApi._fnAddData(oSettings, json.data[i]);
+      }
+
+      oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+      table.fnDraw();
+  });
 }
 
 $(document).ready(function(){
