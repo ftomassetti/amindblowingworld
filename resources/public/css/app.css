@@ -38,3 +38,11 @@ h2 {
     font-style: italic;
     font-weight: lighter;
 }
+
+tr.odd {
+    color: rgb(0, 0, 0);
+}
+
+tr.even {
+    color: rgb(0, 0, 0);
+}
