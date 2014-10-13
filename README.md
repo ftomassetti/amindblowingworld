@@ -1,5 +1,7 @@
 # amindblowingworld
 
+We built this _VERY_ simple game while participating in the Clojurecup 2014.
+
 ## Usage: build and start
 
 ```
